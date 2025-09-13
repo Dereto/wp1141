@@ -1,4 +1,4 @@
-# Blog Homepage - TypeScript Implementation
+# Web Programming Homework 1
 
 A clean and concise blog homepage built with HTML, CSS, and TypeScript, inspired by minimalist design principles.
 
@@ -13,19 +13,6 @@ A clean and concise blog homepage built with HTML, CSS, and TypeScript, inspired
 - `main.js` - Compiled JavaScript for homepage (generated from TypeScript)
 - `post.js` - Compiled JavaScript for post pages (generated from TypeScript)
 - `tsconfig.json` - TypeScript configuration
-
-## TypeScript Features
-
-### Type Definitions
-- `BlogPost` interface defining the structure of blog posts
-- Proper typing for DOM elements and event handlers
-- Type-safe function parameters and return types
-
-### Key TypeScript Implementations
-- Strong typing for blog post data structure
-- Type-safe DOM manipulation
-- Proper event handler typing
-- Module exports with type information
 
 ## Development
 
@@ -42,34 +29,21 @@ npx tsc post.ts
 ```
 
 ### Running the Application
+Simply open `index.html` in a web browser. The repository already contained compiled TypeScript files.
 
-**Option 1: Direct File Access (Recommended)**
-Simply open `index.html` in a web browser. The compiled JavaScript will load without CORS issues.
+## 網頁設計概念與內容
+靈感來源於 [Donnacha Oisín Kidney
+](https://doisinkidney.com/)的個人網站。想設計一個類似部落格的網站存放各種文章。
 
-**Option 2: Local Server**
-If you prefer using a local server:
-```bash
-# Using Python
-python3 -m http.server 8000
+### 設計理念
+採用了簡潔的設計風格，強調內容的可讀性。首頁的部落格列表以卡片式布局呈現，每篇文章都包含標題、摘要與標籤，使用者可以輕鬆瀏覽與篩選。
 
-# Using Node.js (if you have http-server installed)
-npx http-server
+網站除了提供文字內容外，也支持程式碼區塊，方便使用者閱讀程式與證明。
 
-# Then open http://localhost:8000 in your browser
-```
-
-## Features
-
-- **Responsive Design**: Works on all device sizes
-- **Dark Mode Support**: Automatic theme switching
-- **Search Functionality**: Filter blog posts by title, content, or tags
-- **Smooth Navigation**: Animated scrolling between sections
-- **Individual Post Pages**: Clickable blog posts with full content
-- **URL Routing**: Posts accessible via `/post.html?slug=post-slug` URLs
-- **Type Safety**: Full TypeScript implementation with proper type definitions
-- **Modern CSS**: Clean, minimalist design with CSS Grid and Flexbox
-- **No CORS Issues**: Works directly with file:// protocol
-
-## Browser Compatibility
-
-Requires a modern browser that supports ES2020 and CSS Grid.
+### 主要功能
+- **響應式設計**: 網站在各種裝置上均可顯示，包括手機。
+- **深色模式**: 網站會根據使用者的系統設定自動切換主題，可在深色與淺色模式之間選擇。
+- **搜尋功能**: 可以透過標題、內容或標籤過濾部落格文章。
+- **代碼導航**: 在任何 Agda 教學文章(第一篇文章)中，使用者可以點擊帶有連結的型別、函數或建構子名稱，頁面將自動捲動至該代碼區塊，並短暫高亮顯示。
+    
+    範例：![示意圖](example.png)
