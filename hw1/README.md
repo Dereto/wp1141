@@ -4,12 +4,14 @@ A clean and concise blog homepage built with HTML, CSS, and TypeScript, inspired
 
 ## Files Structure
 
-- `index.html` - Main HTML structure
+- `index.html` - Main blog homepage
+- `post.html` - Individual post page template
 - `styles.css` - CSS styling with responsive design and dark mode support
-- `main.ts` - TypeScript source code with type definitions and functionality
-- `main.js` - Compiled JavaScript (generated from TypeScript)
-- `main.d.ts` - TypeScript declaration file
-- `main.js.map` - Source map for debugging
+- `data.js` - Shared blog post data and utility functions
+- `main.ts` - TypeScript source code for homepage functionality
+- `post.ts` - TypeScript source code for individual post pages
+- `main.js` - Compiled JavaScript for homepage (generated from TypeScript)
+- `post.js` - Compiled JavaScript for post pages (generated from TypeScript)
 - `tsconfig.json` - TypeScript configuration
 
 ## TypeScript Features
@@ -29,7 +31,14 @@ A clean and concise blog homepage built with HTML, CSS, and TypeScript, inspired
 
 ### Compiling TypeScript
 ```bash
+# Install TypeScript globally first
+npm install -g typescript
+
+# Compile main.ts
 npx tsc
+
+# Compile post.ts
+npx tsc post.ts
 ```
 
 ### Running the Application
@@ -55,9 +64,12 @@ npx http-server
 - **Dark Mode Support**: Automatic theme switching
 - **Search Functionality**: Filter blog posts by title, content, or tags
 - **Smooth Navigation**: Animated scrolling between sections
+- **Individual Post Pages**: Clickable blog posts with full content
+- **URL Routing**: Posts accessible via `/post.html?slug=post-slug` URLs
 - **Type Safety**: Full TypeScript implementation with proper type definitions
 - **Modern CSS**: Clean, minimalist design with CSS Grid and Flexbox
+- **No CORS Issues**: Works directly with file:// protocol
 
 ## Browser Compatibility
 
-Requires a modern browser that supports ES2020 modules and CSS Grid.
+Requires a modern browser that supports ES2020 and CSS Grid.

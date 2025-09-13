@@ -318,8 +318,81 @@ body {
     }
 }
 
+/* Agda code styling */
+.agda-code {
+    margin: 1.5rem 0;
+    font-family: 'Courier New', 'Monaco', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+
+.agda-code pre {
+    margin: 0;
+    background: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+}
+
+.agda-code code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-family: inherit;
+    color: #333;
+}
+
+/* Agda inline links */
+.agda-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+    border-bottom: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.agda-link:hover {
+    color: inherit;
+    border-bottom: 1px dotted currentColor;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.agda-link:visited {
+    color: inherit;
+    border-bottom: none;
+}
+
+/* Agda code highlighting */
+.agda-code.highlight {
+    background-color: rgba(0, 102, 204, 0.1) !important;
+    transition: all 0.3s ease;
+}
+
+/* Clickable function names within code */
+.agda-code .agda-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+    border-bottom: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.agda-code .agda-link:hover {
+    color: inherit;
+    border-bottom: 1px dotted currentColor;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
     body {
         background-color: #1a1a1a;
         color: #e5e5e5;
@@ -388,4 +461,140 @@ body {
         background-color: #444;
         color: #e5e5e5;
     }
+    
+    .agda-code {
+        color: #e5e5e5;
+    }
+    
+    .agda-code code {
+        color: #e5e5e5;
+    }
+    
+    .agda-link {
+        color: inherit;
+        border-bottom: none;
+    }
+    
+    .agda-link:hover {
+        color: inherit;
+        border-bottom: 1px dotted currentColor;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .agda-link:visited {
+        color: inherit;
+        border-bottom: none;
+    }
+    
+    .agda-code.highlight {
+        background-color: rgba(77, 166, 255, 0.1) !important;
+    }
+    
+    .agda-code .agda-link {
+        color: inherit;
+        border-bottom: none;
+    }
+    
+    .agda-code .agda-link:hover {
+        color: inherit;
+        border-bottom: 1px dotted currentColor;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Explicit dark mode support via data-theme attribute */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #e5e5e5;
+    --header-bg: #2a2a2a;
+    --card-bg: #2a2a2a;
+    --border-color: #444;
+    --hover-bg: #333;
+    --search-bg: #333;
+    --search-border: #555;
+    --tag-bg: #444;
+    --tag-hover: #555;
+    --link-color: #4da6ff;
+    --link-hover: #66b3ff;
+    --link-visited: #b366ff;
+    --agda-code-color: #e5e5e5;
+    --agda-highlight: rgba(77, 166, 255, 0.1);
+    --agda-link-hover: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] header {
+    background-color: var(--header-bg);
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .post-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .post-card:hover {
+    background-color: var(--hover-bg);
+}
+
+[data-theme="dark"] .search-container input {
+    background-color: var(--search-bg);
+    border-color: var(--search-border);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .search-container input:focus {
+    border-color: var(--link-color);
+}
+
+[data-theme="dark"] .post-tag {
+    background-color: var(--tag-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .post-tag:hover {
+    background-color: var(--tag-hover);
+}
+
+[data-theme="dark"] .agda-code {
+    color: var(--agda-code-color);
+}
+
+[data-theme="dark"] .agda-code code {
+    color: var(--agda-code-color);
+}
+
+[data-theme="dark"] .agda-link {
+    color: var(--link-color);
+    border-bottom-color: var(--link-color);
+}
+
+[data-theme="dark"] .agda-link:hover {
+    color: var(--link-hover);
+    border-bottom-color: var(--link-hover);
+    background-color: var(--agda-link-hover);
+}
+
+[data-theme="dark"] .agda-link:visited {
+    color: var(--link-visited);
+    border-bottom-color: var(--link-visited);
+}
+
+[data-theme="dark"] .agda-code.highlight {
+    background-color: var(--agda-highlight) !important;
+}
+
+[data-theme="dark"] .agda-code .agda-link {
+    color: var(--link-color);
+    border-bottom: none;
+}
+
+[data-theme="dark"] .agda-code .agda-link:hover {
+    color: var(--link-hover);
+    border-bottom: 1px dotted currentColor;
+    background-color: var(--agda-link-hover);
 }

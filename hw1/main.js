@@ -1,60 +1,14 @@
 "use strict";
-// Sample blog posts data
-const blogPosts = [
-    {
-        id: 1,
-        title: "Getting Started with TypeScript",
-        excerpt: "TypeScript brings static type checking to JavaScript, making your code more robust and maintainable. In this post, we'll explore the basics and see how it can improve your development workflow.",
-        date: "2024-01-15",
-        readTime: "5 min read",
-        tags: ["TypeScript", "JavaScript", "Programming"],
-        slug: "getting-started-with-typescript"
-    },
-    {
-        id: 2,
-        title: "The Art of Minimalist Web Design",
-        excerpt: "Less is more. Discover how minimalist design principles can create powerful, user-friendly websites that focus on content and user experience rather than flashy elements.",
-        date: "2024-01-10",
-        readTime: "7 min read",
-        tags: ["Design", "UX", "Web Development"],
-        slug: "art-of-minimalist-web-design"
-    },
-    {
-        id: 3,
-        title: "Building Responsive Layouts with CSS Grid",
-        excerpt: "CSS Grid has revolutionized how we create layouts. Learn how to build flexible, responsive designs that work beautifully across all devices and screen sizes.",
-        date: "2024-01-05",
-        readTime: "6 min read",
-        tags: ["CSS", "Grid", "Responsive Design"],
-        slug: "building-responsive-layouts-css-grid"
-    },
-    {
-        id: 4,
-        title: "The Future of Web Development",
-        excerpt: "Exploring emerging trends and technologies that are shaping the future of web development, from AI integration to new frameworks and tools.",
-        date: "2024-01-01",
-        readTime: "8 min read",
-        tags: ["Web Development", "Future", "Technology"],
-        slug: "future-of-web-development"
-    }
-];
+// Utility functions (formatDate is now declared globally from data.js)
 // DOM elements
 const postsGrid = document.getElementById('posts-grid');
 const navLinks = document.querySelectorAll('.nav-link');
-// Utility functions
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
+// Utility functions (formatDate is imported from data.ts)
 function createPostCard(post) {
     return `
         <article class="post-card">
             <h3 class="post-title">
-                <a href="#post-${post.slug}">${post.title}</a>
+                <a href="post.html?slug=${post.slug}">${post.title}</a>
             </h3>
             <div class="post-meta">
                 <span>${formatDate(post.date)}</span>
@@ -221,14 +175,41 @@ function init() {
     addSearchFunctionality();
     // Add theme toggle
     addThemeToggle();
+    // Set up Agda links
+    setupAgdaLinks();
     // Set initial active nav link
     updateActiveNavLink();
 }
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', init);
+// Agda link functionality
+function setupAgdaLinks() {
+    const agdaLinks = document.querySelectorAll('.agda-link');
+    agdaLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Get target section
+            const targetId = link.getAttribute('href')?.substring(1);
+            const targetSection = document.getElementById(targetId || '');
+            if (targetSection) {
+                const headerHeight = 80;
+                const targetPosition = targetSection.offsetTop - headerHeight;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                // Highlight the target code block briefly
+                targetSection.classList.add('highlight');
+                setTimeout(() => {
+                    targetSection.classList.remove('highlight');
+                }, 2000);
+            }
+        });
+    });
+}
 // Make functions available globally for debugging
-window.BlogPost = BlogPost;
 window.blogPosts = blogPosts;
 window.createPostCard = createPostCard;
 window.renderBlogPosts = renderBlogPosts;
+window.setupAgdaLinks = setupAgdaLinks;
 //# sourceMappingURL=main.js.map
