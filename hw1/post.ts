@@ -1,19 +1,8 @@
-// Blog post interface
-interface BlogPost {
-    id: number;
-    title: string;
-    excerpt: string;
-    content: string;
-    date: string;
-    readTime: string;
-    tags: string[];
-    slug: string;
-}
-
-// Global declarations for shared data
-declare const blogPosts: BlogPost[];
+// Using global variables from data.js
+// @ts-ignore: getPostBySlug and formatDate are provided globally by data.js
+declare const getPostBySlug: (slug: string) => any;
+// @ts-ignore: getPostBySlug and formatDate are provided globally by data.js
 declare const formatDate: (dateString: string) => string;
-declare const getPostBySlug: (slug: string) => BlogPost | undefined;
 
 function getSlugFromURL(): string | null {
     const urlParams = new URLSearchParams(window.location.search);
@@ -56,8 +45,8 @@ function loadPost(): void {
     ).join('');
 }
 
-// Theme toggle functionality (same as main.ts)
-function addThemeToggle(): void {
+// Theme toggle functionality for post page
+function addPostThemeToggle(): void {
     const themeToggle = document.createElement('button');
     themeToggle.textContent = '🌙';
     themeToggle.className = 'theme-toggle';
@@ -105,17 +94,17 @@ function addThemeToggle(): void {
 }
 
 // Initialize the post page
-function init(): void {
+function initPost(): void {
     loadPost();
-    addThemeToggle();
-    setupAgdaLinks();
+    addPostThemeToggle();
+    setupPostAgdaLinks();
 }
 
 // Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', initPost);
 
-// Agda link functionality
-function setupAgdaLinks(): void {
+// Agda link functionality for post page
+function setupPostAgdaLinks(): void {
     const agdaLinks = document.querySelectorAll('.agda-link');
     
     agdaLinks.forEach(link => {
@@ -146,7 +135,5 @@ function setupAgdaLinks(): void {
 }
 
 // Make functions available globally for debugging
-(window as any).blogPosts = blogPosts;
-(window as any).getPostBySlug = getPostBySlug;
 (window as any).loadPost = loadPost;
-(window as any).setupAgdaLinks = setupAgdaLinks;
+(window as any).setupPostAgdaLinks = setupPostAgdaLinks;

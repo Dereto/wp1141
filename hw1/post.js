@@ -31,8 +31,8 @@ function loadPost() {
         return "<a href=\"#tag-".concat(tag.toLowerCase(), "\" class=\"post-tag-large\">").concat(tag, "</a>");
     }).join('');
 }
-// Theme toggle functionality (same as main.ts)
-function addThemeToggle() {
+// Theme toggle functionality for post page
+function addPostThemeToggle() {
     var themeToggle = document.createElement('button');
     themeToggle.textContent = '🌙';
     themeToggle.className = 'theme-toggle';
@@ -59,15 +59,15 @@ function addThemeToggle() {
     });
 }
 // Initialize the post page
-function init() {
+function initPost() {
     loadPost();
-    addThemeToggle();
-    setupAgdaLinks();
+    addPostThemeToggle();
+    setupPostAgdaLinks();
 }
 // Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', init);
-// Agda link functionality
-function setupAgdaLinks() {
+document.addEventListener('DOMContentLoaded', initPost);
+// Agda link functionality for post page
+function setupPostAgdaLinks() {
     var agdaLinks = document.querySelectorAll('.agda-link');
     agdaLinks.forEach(function (link) {
         link.addEventListener('click', function (e) {
@@ -84,16 +84,14 @@ function setupAgdaLinks() {
                     behavior: 'smooth'
                 });
                 // Highlight the target code block briefly
-                targetSection.style.backgroundColor = 'rgba(0, 102, 204, 0.1)';
+                targetSection.classList.add('highlight');
                 setTimeout(function () {
-                    targetSection.style.backgroundColor = '';
+                    targetSection.classList.remove('highlight');
                 }, 2000);
             }
         });
     });
 }
 // Make functions available globally for debugging
-window.blogPosts = blogPosts;
-window.getPostBySlug = getPostBySlug;
 window.loadPost = loadPost;
-window.setupAgdaLinks = setupAgdaLinks;
+window.setupPostAgdaLinks = setupPostAgdaLinks;
