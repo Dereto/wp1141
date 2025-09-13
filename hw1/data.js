@@ -7,153 +7,6 @@ const BlogPost = {
 const blogPosts = [
     {
         id: 1,
-        title: "Getting Started with TypeScript",
-        excerpt: "TypeScript brings static type checking to JavaScript, making your code more robust and maintainable. In this post, we'll explore the basics and see how it can improve your development workflow.",
-        content: `
-            <p>TypeScript has become one of the most popular languages for web development, and for good reason. It brings the power of static type checking to JavaScript, helping developers catch errors early and write more maintainable code.</p>
-            
-            <h2>What is TypeScript?</h2>
-            <p>TypeScript is a superset of JavaScript that adds optional static type definitions. It compiles to plain JavaScript and can be used in any environment where JavaScript runs.</p>
-            
-            <h2>Key Benefits</h2>
-            <ul>
-                <li><strong>Type Safety:</strong> Catch errors at compile time rather than runtime</li>
-                <li><strong>Better IDE Support:</strong> Enhanced autocomplete, refactoring, and navigation</li>
-                <li><strong>Improved Documentation:</strong> Types serve as inline documentation</li>
-                <li><strong>Easier Refactoring:</strong> Safe renaming and restructuring of code</li>
-            </ul>
-            
-            <h2>Getting Started</h2>
-            <p>To start using TypeScript, you can install it globally or as a project dependency:</p>
-            <pre><code>npm install -g typescript
-# or
-npm install --save-dev typescript</code>`,
-        date: "2024-01-15",
-        readTime: "5 min read",
-        tags: ["TypeScript", "JavaScript", "Programming"],
-        slug: "getting-started-with-typescript"
-    },
-    {
-        id: 2,
-        title: "The Art of Minimalist Web Design",
-        excerpt: "Less is more. Discover how minimalist design principles can create powerful, user-friendly websites that focus on content and user experience rather than flashy elements.",
-        content: `
-            <p>Minimalist web design isn't about removing everything—it's about removing everything unnecessary. The goal is to create a clean, focused experience that guides users to what matters most.</p>
-            
-            <h2>Core Principles</h2>
-            <p>Minimalist design follows several key principles that work together to create effective, beautiful websites:</p>
-            
-            <h3>1. Whitespace is Your Friend</h3>
-            <p>Generous use of whitespace helps content breathe and creates visual hierarchy. It's not empty space—it's purposeful space that guides the eye.</p>
-            
-            <h3>2. Typography Matters</h3>
-            <p>With fewer visual elements, typography becomes crucial. Choose fonts that are readable and create clear information hierarchy.</p>
-            
-            <h3>3. Color with Purpose</h3>
-            <p>Limit your color palette. A few well-chosen colors are more effective than a rainbow of options.</p>
-            
-            <h2>Benefits of Minimalism</h2>
-            <ul>
-                <li>Faster loading times</li>
-                <li>Better mobile experience</li>
-                <li>Improved accessibility</li>
-                <li>Easier maintenance</li>
-                <li>Timeless design</li>
-            </ul>
-            
-            <p>Remember: every element should serve a purpose. If it doesn't add value, it's taking away from the user experience.</p>
-        `,
-        date: "2024-01-10",
-        readTime: "7 min read",
-        tags: ["Design", "UX", "Web Development"],
-        slug: "art-of-minimalist-web-design"
-    },
-    {
-        id: 3,
-        title: "Building Responsive Layouts with CSS Grid",
-        excerpt: "CSS Grid has revolutionized how we create layouts. Learn how to build flexible, responsive designs that work beautifully across all devices and screen sizes.",
-        content: `
-            <p>CSS Grid is a powerful layout system that allows you to create complex, responsive designs with ease. Unlike Flexbox, which is one-dimensional, Grid works in two dimensions, making it perfect for overall page layouts.</p>
-            
-            <h2>Grid Basics</h2>
-            <p>CSS Grid uses a grid container and grid items. The container defines the grid structure, while items are placed within the grid.</p>
-            
-            <pre><code>.grid-container {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    gap: 20px;
-}</code>
-            
-            <h2>Responsive Grid</h2>
-            <p>One of Grid's greatest strengths is its ability to create responsive layouts without media queries:</p>
-            
-            <pre><code>.responsive-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}</code>
-            
-            <h2>Grid Areas</h2>
-            <p>Named grid areas make complex layouts more readable and maintainable:</p>
-            
-            <pre><code>.layout {
-    display: grid;
-    grid-template-areas: 
-        "header header header"
-        "sidebar main aside"
-        "footer footer footer";
-    grid-template-columns: 200px 1fr 200px;
-    grid-template-rows: auto 1fr auto;
-}</code>
-            
-            <p>CSS Grid has transformed how we think about web layouts, making it easier than ever to create sophisticated, responsive designs.</p>
-        `,
-        date: "2024-01-05",
-        readTime: "6 min read",
-        tags: ["CSS", "Grid", "Responsive Design"],
-        slug: "building-responsive-layouts-css-grid"
-    },
-    {
-        id: 4,
-        title: "The Future of Web Development",
-        excerpt: "Exploring emerging trends and technologies that are shaping the future of web development, from AI integration to new frameworks and tools.",
-        content: `
-            <p>The web development landscape is constantly evolving. As we look ahead, several trends and technologies are poised to reshape how we build and interact with web applications.</p>
-            
-            <h2>AI-Powered Development</h2>
-            <p>Artificial Intelligence is becoming an integral part of the development process. From code generation to automated testing, AI tools are helping developers work more efficiently.</p>
-            
-            <h3>Code Generation</h3>
-            <p>AI-powered tools can generate boilerplate code, suggest implementations, and even write entire functions based on natural language descriptions.</p>
-            
-            <h2>WebAssembly (WASM)</h2>
-            <p>WebAssembly allows high-performance applications to run in the browser, opening up new possibilities for web-based software that was previously only possible as desktop applications.</p>
-            
-            <h2>Progressive Web Apps (PWAs)</h2>
-            <p>PWAs continue to bridge the gap between web and native applications, offering offline functionality, push notifications, and app-like experiences.</p>
-            
-            <h2>Edge Computing</h2>
-            <p>Moving computation closer to users reduces latency and improves performance. Edge functions and CDNs are becoming more sophisticated.</p>
-            
-            <h2>What This Means for Developers</h2>
-            <ul>
-                <li>Focus on performance and user experience</li>
-                <li>Embrace new tools and technologies</li>
-                <li>Learn about AI integration</li>
-                <li>Understand edge computing concepts</li>
-                <li>Stay adaptable and curious</li>
-            </ul>
-            
-            <p>The future of web development is exciting and full of possibilities. The key is to stay informed, experiment with new technologies, and always prioritize the user experience.</p>
-        `,
-        date: "2024-01-01",
-        readTime: "8 min read",
-        tags: ["Web Development", "Future", "Technology"],
-        slug: "future-of-web-development"
-    },
-    {
-        id: 5,
         title: "Introduction to Agda: Dependent Types and Formal Verification",
         excerpt: "Explore the world of Agda, a functional programming language with dependent types that enables formal verification of mathematical properties and program correctness.",
         content: `
@@ -286,6 +139,153 @@ Stream.tail fib = fib' where
         readTime: "10 min read",
         tags: ["Agda", "Functional Programming", "Type Theory", "Formal Verification"],
         slug: "introduction-to-agda"
+    },
+    {
+        id: 2,
+        title: "Getting Started with TypeScript",
+        excerpt: "TypeScript brings static type checking to JavaScript, making your code more robust and maintainable. In this post, we'll explore the basics and see how it can improve your development workflow.",
+        content: `
+            <p>TypeScript has become one of the most popular languages for web development, and for good reason. It brings the power of static type checking to JavaScript, helping developers catch errors early and write more maintainable code.</p>
+            
+            <h2>What is TypeScript?</h2>
+            <p>TypeScript is a superset of JavaScript that adds optional static type definitions. It compiles to plain JavaScript and can be used in any environment where JavaScript runs.</p>
+            
+            <h2>Key Benefits</h2>
+            <ul>
+                <li><strong>Type Safety:</strong> Catch errors at compile time rather than runtime</li>
+                <li><strong>Better IDE Support:</strong> Enhanced autocomplete, refactoring, and navigation</li>
+                <li><strong>Improved Documentation:</strong> Types serve as inline documentation</li>
+                <li><strong>Easier Refactoring:</strong> Safe renaming and restructuring of code</li>
+            </ul>
+            
+            <h2>Getting Started</h2>
+            <p>To start using TypeScript, you can install it globally or as a project dependency:</p>
+            <pre><code>npm install -g typescript
+# or
+npm install --save-dev typescript</code>`,
+        date: "2024-01-15",
+        readTime: "5 min read",
+        tags: ["TypeScript", "JavaScript", "Programming"],
+        slug: "getting-started-with-typescript"
+    },
+    {
+        id: 3,
+        title: "The Art of Minimalist Web Design",
+        excerpt: "Less is more. Discover how minimalist design principles can create powerful, user-friendly websites that focus on content and user experience rather than flashy elements.",
+        content: `
+            <p>Minimalist web design isn't about removing everything—it's about removing everything unnecessary. The goal is to create a clean, focused experience that guides users to what matters most.</p>
+            
+            <h2>Core Principles</h2>
+            <p>Minimalist design follows several key principles that work together to create effective, beautiful websites:</p>
+            
+            <h3>1. Whitespace is Your Friend</h3>
+            <p>Generous use of whitespace helps content breathe and creates visual hierarchy. It's not empty space—it's purposeful space that guides the eye.</p>
+            
+            <h3>2. Typography Matters</h3>
+            <p>With fewer visual elements, typography becomes crucial. Choose fonts that are readable and create clear information hierarchy.</p>
+            
+            <h3>3. Color with Purpose</h3>
+            <p>Limit your color palette. A few well-chosen colors are more effective than a rainbow of options.</p>
+            
+            <h2>Benefits of Minimalism</h2>
+            <ul>
+                <li>Faster loading times</li>
+                <li>Better mobile experience</li>
+                <li>Improved accessibility</li>
+                <li>Easier maintenance</li>
+                <li>Timeless design</li>
+            </ul>
+            
+            <p>Remember: every element should serve a purpose. If it doesn't add value, it's taking away from the user experience.</p>
+        `,
+        date: "2024-01-10",
+        readTime: "7 min read",
+        tags: ["Design", "UX", "Web Development"],
+        slug: "art-of-minimalist-web-design"
+    },
+    {
+        id: 4,
+        title: "Building Responsive Layouts with CSS Grid",
+        excerpt: "CSS Grid has revolutionized how we create layouts. Learn how to build flexible, responsive designs that work beautifully across all devices and screen sizes.",
+        content: `
+            <p>CSS Grid is a powerful layout system that allows you to create complex, responsive designs with ease. Unlike Flexbox, which is one-dimensional, Grid works in two dimensions, making it perfect for overall page layouts.</p>
+            
+            <h2>Grid Basics</h2>
+            <p>CSS Grid uses a grid container and grid items. The container defines the grid structure, while items are placed within the grid.</p>
+            
+            <pre><code>.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 20px;
+}</code>
+            
+            <h2>Responsive Grid</h2>
+            <p>One of Grid's greatest strengths is its ability to create responsive layouts without media queries:</p>
+            
+            <pre><code>.responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}</code>
+            
+            <h2>Grid Areas</h2>
+            <p>Named grid areas make complex layouts more readable and maintainable:</p>
+            
+            <pre><code>.layout {
+    display: grid;
+    grid-template-areas: 
+        "header header header"
+        "sidebar main aside"
+        "footer footer footer";
+    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: auto 1fr auto;
+}</code>
+            
+            <p>CSS Grid has transformed how we think about web layouts, making it easier than ever to create sophisticated, responsive designs.</p>
+        `,
+        date: "2024-01-05",
+        readTime: "6 min read",
+        tags: ["CSS", "Grid", "Responsive Design"],
+        slug: "building-responsive-layouts-css-grid"
+    },
+    {
+        id: 5,
+        title: "The Future of Web Development",
+        excerpt: "Exploring emerging trends and technologies that are shaping the future of web development, from AI integration to new frameworks and tools.",
+        content: `
+            <p>The web development landscape is constantly evolving. As we look ahead, several trends and technologies are poised to reshape how we build and interact with web applications.</p>
+            
+            <h2>AI-Powered Development</h2>
+            <p>Artificial Intelligence is becoming an integral part of the development process. From code generation to automated testing, AI tools are helping developers work more efficiently.</p>
+            
+            <h3>Code Generation</h3>
+            <p>AI-powered tools can generate boilerplate code, suggest implementations, and even write entire functions based on natural language descriptions.</p>
+            
+            <h2>WebAssembly (WASM)</h2>
+            <p>WebAssembly allows high-performance applications to run in the browser, opening up new possibilities for web-based software that was previously only possible as desktop applications.</p>
+            
+            <h2>Progressive Web Apps (PWAs)</h2>
+            <p>PWAs continue to bridge the gap between web and native applications, offering offline functionality, push notifications, and app-like experiences.</p>
+            
+            <h2>Edge Computing</h2>
+            <p>Moving computation closer to users reduces latency and improves performance. Edge functions and CDNs are becoming more sophisticated.</p>
+            
+            <h2>What This Means for Developers</h2>
+            <ul>
+                <li>Focus on performance and user experience</li>
+                <li>Embrace new tools and technologies</li>
+                <li>Learn about AI integration</li>
+                <li>Understand edge computing concepts</li>
+                <li>Stay adaptable and curious</li>
+            </ul>
+            
+            <p>The future of web development is exciting and full of possibilities. The key is to stay informed, experiment with new technologies, and always prioritize the user experience.</p>
+        `,
+        date: "2024-01-01",
+        readTime: "8 min read",
+        tags: ["Web Development", "Future", "Technology"],
+        slug: "future-of-web-development"
     }
 ];
 
