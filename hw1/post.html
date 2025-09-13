@@ -103,6 +103,7 @@
             color: #333;
         }
         @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
             .post-content h1, .post-content h2, .post-content h3 {
                 color: #e5e5e5;
             }
@@ -129,6 +130,7 @@
             .post-tag-large:hover {
                 background-color: #444;
                 color: #e5e5e5;
+            }
             }
         }
     </style>

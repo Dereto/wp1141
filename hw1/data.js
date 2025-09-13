@@ -27,32 +27,7 @@ const blogPosts = [
             <p>To start using TypeScript, you can install it globally or as a project dependency:</p>
             <pre><code>npm install -g typescript
 # or
-npm install --save-dev typescript</code></pre>
-            
-            <p>Create a simple TypeScript file and compile it to see the magic in action. The type system will help you write better, more reliable code from day one.</p>
-            
-            <h2>TypeScript vs Agda</h2>
-            <p>While TypeScript provides static typing for JavaScript, Agda takes type safety to the next level with dependent types and formal verification capabilities.</p>
-            
-            <div class="agda-code">
-                <pre><code>-- Agda example: Natural numbers with dependent types
-data ℕ : Set where
-  zero : ℕ
-  suc  : ℕ → ℕ
-
--- Dependent function type
-_+_ : ℕ → ℕ → ℕ
-zero + n = n
-suc m + n = suc (m + n)
-
--- Proof that addition is associative
-+-assoc : ∀ m n p → (m + n) + p ≡ m + (n + p)
-+-assoc zero n p = refl
-+-assoc (suc m) n p = cong suc (+-assoc m n p)</code></pre>
-            </div>
-            
-            <p>This Agda code demonstrates dependent types where the type system can express properties about the values themselves, enabling formal verification of mathematical properties.</p>
-        `,
+npm install --save-dev typescript</code>`,
         date: "2024-01-15",
         readTime: "5 min read",
         tags: ["TypeScript", "JavaScript", "Programming"],
@@ -108,7 +83,7 @@ suc m + n = suc (m + n)
     grid-template-columns: 1fr 2fr 1fr;
     grid-template-rows: auto 1fr auto;
     gap: 20px;
-}</code></pre>
+}</code>
             
             <h2>Responsive Grid</h2>
             <p>One of Grid's greatest strengths is its ability to create responsive layouts without media queries:</p>
@@ -117,7 +92,7 @@ suc m + n = suc (m + n)
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
-}</code></pre>
+}</code>
             
             <h2>Grid Areas</h2>
             <p>Named grid areas make complex layouts more readable and maintainable:</p>
@@ -130,7 +105,7 @@ suc m + n = suc (m + n)
         "footer footer footer";
     grid-template-columns: 200px 1fr 200px;
     grid-template-rows: auto 1fr auto;
-}</code></pre>
+}</code>
             
             <p>CSS Grid has transformed how we think about web layouts, making it easier than ever to create sophisticated, responsive designs.</p>
         `,
@@ -189,64 +164,64 @@ suc m + n = suc (m + n)
             
             <h2>Basic Data Types</h2>
             <p>Let's start with fundamental data types in Agda. We can define the <a href="#bool-def" class="agda-link">Bool</a> type for boolean values:</p>
-            
+
             <div class="agda-code" id="bool-def">
-                <pre><code>-- Boolean type
+                <code>-- Boolean type
 data Bool : Set where
   true  : Bool
-  false : Bool</code></pre>
+  false : Bool</code>
             </div>
             
             <p>Similarly, we can define natural numbers using the <a href="#nat-def" class="agda-link">ℕ</a> type:</p>
             
             <div class="agda-code" id="nat-def">
-                <pre><code>-- Natural numbers
+                <code>-- Natural numbers
 data ℕ : Set where
   zero : ℕ
-  suc  : ℕ → ℕ</code></pre>
+  suc  : ℕ → ℕ</code>
             </div>
             
             <p>For lists, we use the <a href="#list-def" class="agda-link">List</a> type which is parameterized by the element type:</p>
             
             <div class="agda-code" id="list-def">
-                <pre><code>-- Lists
+                <code>-- Lists
 data List (A : Set) : Set where
   []   : List A
-  _∷_  : A → List A → List A</code></pre>
+  _∷_  : A → List A → List A</code>
             </div>
             
             <h2>Dependent Types</h2>
             <p>Dependent types allow types to depend on values, enabling more precise specifications. For example, the <a href="#vec-def" class="agda-link">Vec</a> type represents lists with known length:</p>
             
             <div class="agda-code" id="vec-def">
-                <pre><code>-- Vector: list with known length
+                <code>-- Vector: list with known length
 data Vec (A : Set) : <a href="#nat-def" class="agda-link">ℕ</a> → Set where
   []   : Vec A <a href="#nat-def" class="agda-link">zero</a>
-  _∷_  : {n : ℕ} → A → Vec A n → Vec A (<a href="#nat-def" class="agda-link">suc</a> n)</code></pre>
+  _∷_  : {n : ℕ} → A → Vec A n → Vec A (<a href="#nat-def" class="agda-link">suc</a> n)</code>
             </div>
             
             <p>This allows us to define safe indexing with the <a href="#index-def" class="agda-link">_!!_</a> function:</p>
             
             <div class="agda-code" id="index-def">
-                <pre><code>-- Safe indexing
+                <code>-- Safe indexing
 _!!_ : {A : Set} {n : ℕ} → <a href="#vec-def" class="agda-link">Vec</a> A n → (i : ℕ) → i < n → A
 (x ∷ xs) !! zero = x
-(x ∷ xs) !! <a href="#nat-def" class="agda-link">suc</a> i = xs !! i</code></pre>
+(x ∷ xs) !! <a href="#nat-def" class="agda-link">suc</a> i = xs !! i</code>
             </div>
             
             <h2>Formal Proofs</h2>
             <p>Agda allows you to write formal proofs as programs. We start with the equality type <a href="#eq-def" class="agda-link">_≡_</a>:</p>
             
             <div class="agda-code" id="eq-def">
-                <pre><code>-- Equality type
+                <code>-- Equality type
 data _≡_ {A : Set} (x : A) : A → Set where
-  refl : x ≡ x</code></pre>
+  refl : x ≡ x</code>
             </div>
             
             <p>Using this, we can prove that addition is commutative with the <a href="#comm-proof" class="agda-link">+-comm</a> theorem:</p>
             
             <div class="agda-code" id="comm-proof">
-                <pre><code>-- Proof that addition is commutative
+                <code>-- Proof that addition is commutative
 +-comm : ∀ m n → m + n <a href="#eq-def" class="agda-link">≡</a> n + m
 +-comm <a href="#nat-def" class="agda-link">zero</a> n = sym (+-identityʳ n)
 +-comm (<a href="#nat-def" class="agda-link">suc</a> m) n = 
@@ -258,42 +233,42 @@ data _≡_ {A : Set} (x : A) : A → Set where
     <a href="#nat-def" class="agda-link">suc</a> (n + m)
   <a href="#eq-def" class="agda-link">≡⟨⟩</a>
     n + <a href="#nat-def" class="agda-link">suc</a> m
-  <a href="#eq-def" class="agda-link">∎</a></code></pre>
+  <a href="#eq-def" class="agda-link">∎</a></code>
             </div>
             
             <h2>Advanced Features</h2>
             <p>Agda supports advanced features like universe polymorphism. The <a href="#id-def" class="agda-link">id</a> function demonstrates this:</p>
             
             <div class="agda-code" id="id-def">
-                <pre><code>-- Universe levels
+                <code>-- Universe levels
 open import Level
 
 -- Polymorphic identity function
 id : {a : Level} {A : Set a} → A → A
-id x = x</code></pre>
+id x = x</code>
             </div>
             
             <p>For coinductive data, we can define streams using the <a href="#stream-def" class="agda-link">Stream</a> record:</p>
             
             <div class="agda-code" id="stream-def">
-                <pre><code>-- Coinductive streams
+                <code>-- Coinductive streams
 record Stream (A : Set) : Set where
   coinductive
   field
     head : A
-    tail : Stream A</code></pre>
+    tail : Stream A</code>
             </div>
             
             <p>And create infinite sequences like the <a href="#fib-def" class="agda-link">fib</a> Fibonacci stream:</p>
             
             <div class="agda-code" id="fib-def">
-                <pre><code>-- Fibonacci stream
+                <code>-- Fibonacci stream
 fib : <a href="#stream-def" class="agda-link">Stream</a> <a href="#nat-def" class="agda-link">ℕ</a>
 Stream.head fib = <a href="#nat-def" class="agda-link">zero</a>
 Stream.tail fib = fib' where
   fib' : <a href="#stream-def" class="agda-link">Stream</a> <a href="#nat-def" class="agda-link">ℕ</a>
   Stream.head fib' = <a href="#nat-def" class="agda-link">suc</a> <a href="#nat-def" class="agda-link">zero</a>
-  Stream.tail fib' = zipWith _+_ fib fib'</code></pre>
+  Stream.tail fib' = zipWith _+_ fib fib'</code>
             </div>
             
             <h2>Getting Started with Agda</h2>

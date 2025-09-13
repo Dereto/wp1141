@@ -134,6 +134,7 @@ function setupPostAgdaLinks(): void {
     });
 }
 
+
 // Make functions available globally for debugging
 (window as any).loadPost = loadPost;
 (window as any).setupPostAgdaLinks = setupPostAgdaLinks;

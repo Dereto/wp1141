@@ -268,6 +268,7 @@ function setupAgdaLinks(): void {
     });
 }
 
+
 // Make functions available globally for debugging
 (window as any).blogPosts = blogPosts;
 (window as any).createPostCard = createPostCard;
