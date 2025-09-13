@@ -1,0 +1,391 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    font-size: 16px;
+}
+
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e5e5;
+    z-index: 1000;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.brand-link {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s ease;
+}
+
+.brand-link:hover {
+    color: #666;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #666;
+    font-weight: 400;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #333;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #333;
+}
+
+/* Main content */
+.main {
+    margin-top: 80px;
+}
+
+/* Hero section */
+.hero {
+    padding: 4rem 0;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Section styles */
+.section-title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+/* Blog posts */
+.blog-posts {
+    padding: 4rem 0;
+}
+
+.posts-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.post-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 2rem;
+    transition: all 0.2s ease;
+    background-color: #fff;
+}
+
+.post-card:hover {
+    border-color: #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.post-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.post-title a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.post-title a:hover {
+    color: #666;
+}
+
+.post-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.post-excerpt {
+    color: #555;
+    line-height: 1.7;
+}
+
+.post-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.post-tag {
+    background-color: #f8f9fa;
+    color: #666;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.post-tag:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+/* About section */
+.about {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+}
+
+.about-content p {
+    margin-bottom: 1.5rem;
+    color: #555;
+    line-height: 1.7;
+}
+
+/* Contact section */
+.contact {
+    padding: 4rem 0;
+}
+
+.contact-content p {
+    margin-bottom: 2rem;
+    color: #555;
+    line-height: 1.7;
+}
+
+.contact-links {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.contact-link {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.contact-link:hover {
+    color: #666;
+}
+
+.contact-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #333;
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+}
+
+.contact-link:hover::after {
+    transform: scaleX(1);
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    text-align: center;
+    border-top: 1px solid #e5e5e5;
+}
+
+.footer p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem 20px;
+    }
+    
+    .nav-links {
+        gap: 1.5rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .main {
+        margin-top: 120px;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    .post-card {
+        padding: 1.5rem;
+    }
+    
+    .contact-links {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .post-title {
+        font-size: 1.3rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #e5e5e5;
+    }
+    
+    .header {
+        background-color: rgba(26, 26, 26, 0.95);
+        border-bottom-color: #333;
+    }
+    
+    .brand-link,
+    .nav-link.active,
+    .hero-title,
+    .section-title,
+    .post-title,
+    .contact-link {
+        color: #e5e5e5;
+    }
+    
+    .nav-link {
+        color: #999;
+    }
+    
+    .nav-link:hover {
+        color: #e5e5e5;
+    }
+    
+    .hero {
+        background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    }
+    
+    .hero-subtitle,
+    .post-meta,
+    .post-excerpt,
+    .about-content p,
+    .contact-content p,
+    .footer p {
+        color: #999;
+    }
+    
+    .post-card {
+        background-color: #2a2a2a;
+        border-color: #333;
+    }
+    
+    .post-card:hover {
+        border-color: #555;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .about {
+        background-color: #2a2a2a;
+    }
+    
+    .footer {
+        background-color: #2a2a2a;
+        border-top-color: #333;
+    }
+    
+    .post-tag {
+        background-color: #333;
+        color: #999;
+    }
+    
+    .post-tag:hover {
+        background-color: #444;
+        color: #e5e5e5;
+    }
+}

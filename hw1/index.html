@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Homepage</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <a href="#" class="brand-link">Blog</a>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-title">Welcome to My Blog</h1>
+                <p class="hero-subtitle">Thoughts, ideas, and insights on technology, life, and everything in between.</p>
+            </div>
+        </section>
+
+        <section class="blog-posts">
+            <div class="container">
+                <h2 class="section-title">Latest Posts</h2>
+                <div class="posts-grid" id="posts-grid">
+                    <!-- Blog posts will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="about" id="about">
+            <div class="container">
+                <h2 class="section-title">About</h2>
+                <div class="about-content">
+                    <p>I'm a passionate writer and developer who loves sharing thoughts and experiences through blogging. This space is where I explore ideas, document learnings, and connect with like-minded individuals.</p>
+                    <p>When I'm not writing, you can find me coding, reading, or exploring new technologies and concepts.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact" id="contact">
+            <div class="container">
+                <h2 class="section-title">Get in Touch</h2>
+                <div class="contact-content">
+                    <p>Feel free to reach out if you'd like to discuss any of my posts or just want to say hello.</p>
+                    <div class="contact-links">
+                        <a href="mailto:hello@example.com" class="contact-link">Email</a>
+                        <a href="https://twitter.com" class="contact-link" target="_blank">Twitter</a>
+                        <a href="https://github.com" class="contact-link" target="_blank">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Blog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
