@@ -251,12 +251,11 @@ const GameBoard: React.FC = () => {
           if (state.player.health <= 0) {
             state.gameOver = true;
           }
-          
+        }
           // Non-boss enemies die immediately on collision (no points)
-          if (enemy.type !== EnemyType.BOSS) {
-            console.log(`Enemy ${enemy.type} died from collision with player`);
-            collidingEnemyIds.push(enemy.id);
-          }
+        if (enemy.type !== EnemyType.BOSS) {
+          console.log(`Enemy ${enemy.type} died from collision with player`);
+          collidingEnemyIds.push(enemy.id);
         }
       }
     });
@@ -310,7 +309,7 @@ const GameBoard: React.FC = () => {
 
   const checkLevelProgression = (state: GameState) => {
     const requiredScore = state.level * 100; // 100 points per level
-    if (state.score >= requiredScore && state.enemies.length === 0) {
+    if (state.score >= requiredScore) {
       state.level++;
       // Heal player slightly on level up
       state.player.health = Math.min(state.player.maxHealth, state.player.health + 20);
@@ -385,13 +384,8 @@ const GameBoard: React.FC = () => {
       [EnemyType.BOSS]: '#2c3e50'
     };
     
-    // Flash red when damaged
-    const healthPercent = enemy.health / enemy.maxHealth;
-    if (healthPercent < 1) {
-      ctx.fillStyle = '#ff6b6b'; // Flash red when damaged
-    } else {
-      ctx.fillStyle = colors[enemy.type];
-    }
+    // Use normal color regardless of health
+    ctx.fillStyle = colors[enemy.type];
     
     ctx.fillRect(
       enemy.position.x - enemy.size / 2,
@@ -400,8 +394,9 @@ const GameBoard: React.FC = () => {
       enemy.size
     );
     
-    // Health bar (only show for bosses and damaged enemies)
-    if (enemy.type === EnemyType.BOSS || healthPercent < 1) {
+    // Health bar (only show for bosses)
+    if (enemy.type === EnemyType.BOSS) {
+      const healthPercent = enemy.health / enemy.maxHealth;
       const barWidth = enemy.size;
       const barHeight = 3;
       

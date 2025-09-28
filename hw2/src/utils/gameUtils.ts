@@ -11,7 +11,7 @@ export const GAME_CONFIG = {
 export const PLAYER_CONFIG = {
   size: 24,
   speed: 2,
-  maxHealth: 100,
+  maxHealth: 10000,
   fireRate: 300, // milliseconds between shots
   damage: 25
 };
