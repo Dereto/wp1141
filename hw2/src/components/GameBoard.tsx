@@ -124,6 +124,14 @@ const GameBoard: React.FC = () => {
     // Keep player in bounds
     player.position.x = clamp(player.position.x, player.size / 2, GAME_CONFIG.canvasWidth - player.size / 2);
     player.position.y = clamp(player.position.y, player.size / 2, GAME_CONFIG.canvasHeight - player.size / 2);
+    
+    // Ensure player health doesn't go below 0
+    player.health = Math.max(0, player.health);
+    
+    // Check for game over
+    if (player.health <= 0) {
+      state.gameOver = true;
+    }
 
     // Handle shooting
     const now = Date.now();
@@ -227,13 +235,18 @@ const GameBoard: React.FC = () => {
       return true; // Keep alive enemy
     });
 
-    // Enemy vs Player collisions
-    state.enemies = state.enemies.filter(enemy => {
+    // Enemy vs Player collisions - separate collision detection from enemy removal
+    const collidingEnemies: Enemy[] = [];
+    
+    state.enemies.forEach(enemy => {
       if (checkCollision(state.player, enemy)) {
         const now = Date.now();
         if (now - enemy.lastAttack >= 1000) { // 1 second cooldown
           state.player.health -= enemy.damage;
           enemy.lastAttack = now;
+          
+          // Clamp player health to prevent negative values
+          state.player.health = Math.max(0, state.player.health);
           
           if (state.player.health <= 0) {
             state.gameOver = true;
@@ -241,12 +254,15 @@ const GameBoard: React.FC = () => {
           
           // Non-boss enemies die immediately on collision (no points)
           if (enemy.type !== EnemyType.BOSS) {
-            return false; // Remove enemy without awarding points
+            console.log(`Enemy ${enemy.type} died from collision with player`);
+            collidingEnemies.push(enemy);
           }
         }
       }
-      return true; // Keep enemy alive
     });
+    
+    // Remove colliding non-boss enemies
+    state.enemies = state.enemies.filter(enemy => !collidingEnemies.includes(enemy));
   };
 
   const spawnEnemies = (state: GameState) => {
@@ -452,6 +468,17 @@ const GameBoard: React.FC = () => {
     ctx.font = '12px Courier New';
     ctx.fillText('Collision = Death (no points)', 10, 125 + (state.enemies.length * 15) + 20);
     ctx.fillText('Boss collision = Damage only', 10, 125 + (state.enemies.length * 15) + 35);
+    
+    // Debug: Show collision detection
+    ctx.fillStyle = '#9b59b6';
+    ctx.font = '12px Courier New';
+    const playerPos = state.player.position;
+    state.enemies.forEach((enemy, index) => {
+      const isColliding = checkCollision(state.player, enemy);
+      if (isColliding) {
+        ctx.fillText(`COLLISION with ${enemy.type}`, 10, 125 + (state.enemies.length * 15) + 50 + (index * 15));
+      }
+    });
     
     if (state.gameOver) {
       ctx.fillStyle = '#e74c3c';
