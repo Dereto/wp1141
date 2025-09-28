@@ -1,0 +1,93 @@
+# Journey of the Prairie King
+
+A React TypeScript recreation of the "Journey of the Prairie King" minigame from Stardew Valley.
+
+## Game Features
+
+- **Top-down shooter gameplay** with WASD movement and arrow key shooting
+- **Multiple enemy types** with different behaviors and stats
+- **Power-up system** with health packs, speed boosts, and fire rate increases
+- **Progressive difficulty** with level-based enemy scaling
+- **Collision detection** between bullets, enemies, and player
+- **Score system** with level progression
+- **Pixel art aesthetic** matching the original game style
+
+## Controls
+
+### Movement
+- **W** - Move Up
+- **A** - Move Left  
+- **S** - Move Down
+- **D** - Move Right
+
+### Combat
+- **↑** - Shoot Up
+- **←** - Shoot Left
+- **↓** - Shoot Down
+- **→** - Shoot Right
+
+### Game Controls
+- **R** - Restart game (when game over)
+
+## Enemy Types
+
+- **Basic Enemies** (Red) - Standard enemies with moderate health and speed
+- **Fast Enemies** (Purple) - Quick but fragile enemies
+- **Heavy Enemies** (Brown) - Slow but tanky enemies with high health
+- **Boss Enemies** (Dark) - Rare, powerful enemies that appear at higher levels
+
+## Power-ups
+
+- **Health Pack** (Red) - Restores 25 HP
+- **Speed Boost** (Blue) - Increases movement speed
+- **Rapid Fire** (Orange) - Increases fire rate
+- **Damage Boost** (Purple) - Increases bullet damage
+
+## Game Mechanics
+
+- **Level Progression**: Advance to the next level by reaching the required score
+- **Enemy Scaling**: Enemies become stronger and more numerous at higher levels
+- **Collision System**: Precise collision detection for all game objects
+- **Health System**: Player health decreases when touching enemies
+- **Score System**: Earn points by defeating enemies
+
+## Installation & Running
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+   ```bash
+   npm start
+   ```
+
+3. Open your browser to `http://localhost:3000`
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+## Technical Details
+
+- **Framework**: React 18 with TypeScript
+- **Bundler**: Webpack 5
+- **Canvas Rendering**: HTML5 Canvas for game graphics
+- **Game Loop**: 60 FPS game loop with React state management
+- **Architecture**: Component-based with utility functions for game logic
+
+## Game Architecture
+
+- `GameBoard.tsx` - Main game component with game loop and rendering
+- `types/game.ts` - TypeScript interfaces for game objects
+- `utils/gameUtils.ts` - Game utility functions and configuration
+- `index.css` - Styling with pixel art aesthetic
+
+## Development Notes
+
+The game uses a React-based game loop that updates the game state every frame. All game objects (player, enemies, bullets, power-ups) are managed through React state, with collision detection and game logic handled in utility functions.
+
+The canvas rendering system draws all game objects with appropriate styling to match the original Stardew Valley aesthetic.
