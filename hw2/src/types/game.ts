@@ -73,7 +73,6 @@ export interface GameState {
   paused: boolean;
   keys: { [key: string]: boolean };
   spawnTimer: number;
-  maxEnemies: number;
 }
 
 export interface GameConfig {

@@ -10,7 +10,7 @@ export const GAME_CONFIG = {
 
 export const PLAYER_CONFIG = {
   size: 24,
-  speed: 4,
+  speed: 2,
   maxHealth: 100,
   fireRate: 300, // milliseconds between shots
   damage: 25
@@ -19,28 +19,28 @@ export const PLAYER_CONFIG = {
 export const ENEMY_CONFIGS = {
   [EnemyType.BASIC]: {
     size: 20,
-    speed: 1,
+    speed: 0.5,
     health: 25,
     damage: 20,
     points: 10
   },
   [EnemyType.FAST]: {
     size: 16,
-    speed: 3,
+    speed: 1.5,
     health: 15,
     damage: 15,
     points: 15
   },
   [EnemyType.HEAVY]: {
     size: 28,
-    speed: 0.5,
+    speed: 0.25,
     health: 50,
     damage: 40,
     points: 25
   },
   [EnemyType.BOSS]: {
     size: 40,
-    speed: 1.5,
+    speed: 0.75,
     health: 150,
     damage: 60,
     points: 100
@@ -113,7 +113,7 @@ export function createBullet(position: Position, velocity: Velocity, damage: num
     position,
     velocity,
     damage,
-    size: 4
+    size: 5
   };
 }
 
