@@ -72,6 +72,8 @@ export interface GameState {
   gameOver: boolean;
   paused: boolean;
   keys: { [key: string]: boolean };
+  spawnTimer: number;
+  maxEnemies: number;
 }
 
 export interface GameConfig {

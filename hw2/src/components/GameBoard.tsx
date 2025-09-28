@@ -14,7 +14,9 @@ const GameBoard: React.FC = () => {
     level: 1,
     gameOver: false,
     paused: false,
-    keys: {}
+    keys: {},
+    spawnTimer: 0,
+    maxEnemies: 5
   }));
 
   // Game loop
@@ -237,17 +239,27 @@ const GameBoard: React.FC = () => {
   };
 
   const spawnEnemies = (state: GameState) => {
-    const baseSpawnRate = 0.3;
-    const levelMultiplier = 1 + (state.level - 1) * 0.2;
-    const spawnRate = Math.min(0.8, baseSpawnRate * levelMultiplier);
+    // Update spawn timer
+    state.spawnTimer++;
     
-    if (Math.random() < spawnRate) {
+    // Calculate spawn interval based on level (higher level = faster spawning)
+    const baseSpawnInterval = 120; // frames (2 seconds at 60fps)
+    const levelPenalty = Math.max(0, (state.level - 1) * 10); // reduce interval by 10 frames per level
+    const spawnInterval = Math.max(30, baseSpawnInterval - levelPenalty); // minimum 0.5 seconds
+    
+    // Calculate max enemies based on level
+    const baseMaxEnemies = 5;
+    const levelBonus = Math.floor((state.level - 1) / 2); // +1 enemy every 2 levels
+    state.maxEnemies = baseMaxEnemies + levelBonus;
+    
+    // Spawn enemy if timer reached and we haven't hit the enemy limit
+    if (state.spawnTimer >= spawnInterval && state.enemies.length < state.maxEnemies) {
       let enemyTypes = [EnemyType.BASIC];
       
       // Add more enemy types as level increases
       if (state.level >= 2) enemyTypes.push(EnemyType.FAST);
       if (state.level >= 3) enemyTypes.push(EnemyType.HEAVY);
-      if (state.level >= 5 && Math.random() < 0.1) enemyTypes = [EnemyType.BOSS];
+      if (state.level >= 5 && Math.random() < 0.15) enemyTypes = [EnemyType.BOSS];
       
       const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
       const enemy = createEnemy(type, getRandomSpawnPosition());
@@ -258,6 +270,7 @@ const GameBoard: React.FC = () => {
       enemy.speed = enemy.speed * (1 + (state.level - 1) * 0.1);
       
       state.enemies.push(enemy);
+      state.spawnTimer = 0; // Reset timer
     }
   };
 
@@ -400,6 +413,13 @@ const GameBoard: React.FC = () => {
     ctx.fillText(`Score: ${state.score}`, 10, 25);
     ctx.fillText(`Level: ${state.level}`, 10, 45);
     ctx.fillText(`Health: ${state.player.health}/${state.player.maxHealth}`, 10, 65);
+    ctx.fillText(`Enemies: ${state.enemies.length}/${state.maxEnemies}`, 10, 85);
+    
+    // Show spawn timer progress (optional debug info)
+    const spawnInterval = Math.max(30, 120 - (state.level - 1) * 10);
+    const progress = Math.min(1, state.spawnTimer / spawnInterval);
+    ctx.fillStyle = '#7f8c8d';
+    ctx.fillText(`Next spawn: ${Math.ceil((spawnInterval - state.spawnTimer) / 60)}s`, 10, 105);
     
     if (state.gameOver) {
       ctx.fillStyle = '#e74c3c';
@@ -430,7 +450,9 @@ const GameBoard: React.FC = () => {
             level: 1,
             gameOver: false,
             paused: false,
-            keys: {}
+            keys: {},
+            spawnTimer: 0,
+            maxEnemies: 5
           });
         }
       }
