@@ -236,7 +236,7 @@ const GameBoard: React.FC = () => {
     });
 
     // Enemy vs Player collisions - separate collision detection from enemy removal
-    const collidingEnemies: Enemy[] = [];
+    const collidingEnemyIds: string[] = [];
     
     state.enemies.forEach(enemy => {
       if (checkCollision(state.player, enemy)) {
@@ -255,14 +255,14 @@ const GameBoard: React.FC = () => {
           // Non-boss enemies die immediately on collision (no points)
           if (enemy.type !== EnemyType.BOSS) {
             console.log(`Enemy ${enemy.type} died from collision with player`);
-            collidingEnemies.push(enemy);
+            collidingEnemyIds.push(enemy.id);
           }
         }
       }
     });
     
     // Remove colliding non-boss enemies
-    state.enemies = state.enemies.filter(enemy => !collidingEnemies.includes(enemy));
+    state.enemies = state.enemies.filter(enemy => !collidingEnemyIds.includes(enemy.id));
   };
 
   const spawnEnemies = (state: GameState) => {
