@@ -381,7 +381,7 @@ const GameBoard: React.FC = () => {
       [EnemyType.BASIC]: '#e74c3c',
       [EnemyType.FAST]: '#9b59b6',
       [EnemyType.HEAVY]: '#8b4513',
-      [EnemyType.BOSS]: '#2c3e50'
+      [EnemyType.BOSS]: '#e67e22'
     };
     
     // Use normal color regardless of health
