@@ -3,18 +3,63 @@ body {
   padding: 0;
   background: linear-gradient(135deg, #2c3e50, #34495e);
   font-family: 'Courier New', monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
   color: #ecf0f1;
 }
 
 #root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-header h1 {
+  color: #3498db;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 2.5em;
+}
+
+.game-header p {
+  margin: 0;
+  color: #bdc3c7;
+  font-size: 1.2em;
+}
+
+.game-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  flex: 1;
+}
+
+.game-sidebar {
+  width: 200px;
+  background: rgba(52, 73, 94, 0.8);
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  padding: 15px;
+  height: fit-content;
+}
+
+.game-center {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
 }
 
 canvas {
@@ -23,31 +68,10 @@ canvas {
   background: #2c3e50;
 }
 
-.game-info {
-  text-align: center;
-  max-width: 800px;
-  padding: 20px;
-  background: rgba(52, 73, 94, 0.8);
-  border-radius: 10px;
-  border: 2px solid #34495e;
-}
-
-.game-info h1 {
-  color: #3498db;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.game-info p {
-  margin: 5px 0;
-  line-height: 1.4;
-}
-
 .controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .control-group {
@@ -69,11 +93,10 @@ canvas {
   color: #bdc3c7;
 }
 
-.powerup-info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 15px;
+.powerup-info h3 {
+  color: #f39c12;
+  margin: 0 0 10px 0;
+  font-size: 16px;
 }
 
 .powerup-item {
@@ -84,6 +107,7 @@ canvas {
   background: rgba(44, 62, 80, 0.4);
   border-radius: 3px;
   font-size: 12px;
+  margin-bottom: 5px;
 }
 
 .powerup-color {
@@ -97,3 +121,34 @@ canvas {
 .speed { background-color: #3498db; }
 .fire-rate { background-color: #f39c12; }
 .damage { background-color: #9b59b6; }
+
+.start-menu, .pause-menu, .game-over-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #ecf0f1;
+  padding: 30px;
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  text-align: center;
+  z-index: 10;
+}
+
+.start-menu h2, .pause-menu h2, .game-over-menu h2 {
+  color: #3498db;
+  margin: 0 0 15px 0;
+  font-size: 2em;
+}
+
+.start-menu p, .pause-menu p, .game-over-menu p {
+  margin: 10px 0;
+  font-size: 1.1em;
+}
+
+.game-over-menu p:last-child {
+  color: #e74c3c;
+  font-weight: bold;
+}
+

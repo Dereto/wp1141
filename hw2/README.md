@@ -91,3 +91,4 @@ npm run build
 The game uses a React-based game loop that updates the game state every frame. All game objects (player, enemies, bullets, power-ups) are managed through React state, with collision detection and game logic handled in utility functions.
 
 The canvas rendering system draws all game objects with appropriate styling to match the original Stardew Valley aesthetic.
+

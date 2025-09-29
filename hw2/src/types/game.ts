@@ -73,6 +73,7 @@ export interface GameState {
   paused: boolean;
   keys: { [key: string]: boolean };
   spawnTimer: number;
+  gameStarted: boolean;
 }
 
 export interface GameConfig {

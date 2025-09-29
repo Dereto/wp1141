@@ -16,13 +16,13 @@ const GameBoard: React.FC = () => {
     paused: false,
     keys: {},
     spawnTimer: 0,
-    maxEnemies: 5
+    gameStarted: false
   }));
 
   // Game loop
   useEffect(() => {
     const gameLoop = () => {
-      if (gameState.gameOver || gameState.paused) return;
+      if (!gameState.gameStarted || gameState.gameOver || gameState.paused) return;
       
       setGameState(prevState => {
         const newState = { ...prevState };
@@ -506,7 +506,16 @@ const GameBoard: React.FC = () => {
             paused: false,
             keys: {},
             spawnTimer: 0,
+            gameStarted: false
           });
+        }
+      }
+      
+      if (e.key === ' ' || e.key === 'Space') {
+        if (!gameState.gameStarted) {
+          setGameState(prevState => ({ ...prevState, gameStarted: true }));
+        } else if (!gameState.gameOver) {
+          setGameState(prevState => ({ ...prevState, paused: !prevState.paused }));
         }
       }
     };
@@ -528,58 +537,89 @@ const GameBoard: React.FC = () => {
   }, [gameState.gameOver]);
 
   return (
-    <div>
-      <div className="game-info">
+    <div className="game-container">
+      <div className="game-header">
         <h1>Journey of the Prairie King</h1>
         <p>A Stardew Valley Minigame Recreation</p>
-        
-        <div className="controls">
-          <div className="control-group">
-            <h3>Movement</h3>
-            <p>W - Move Up</p>
-            <p>A - Move Left</p>
-            <p>S - Move Down</p>
-            <p>D - Move Right</p>
-          </div>
-          <div className="control-group">
-            <h3>Combat</h3>
-            <p>↑ - Shoot Up</p>
-            <p>← - Shoot Left</p>
-            <p>↓ - Shoot Down</p>
-            <p>→ - Shoot Right</p>
-          </div>
-        </div>
-        
-        <div className="powerup-info">
-          <div className="powerup-item">
-            <div className="powerup-color health"></div>
-            <span>Health Pack (+25 HP)</span>
-          </div>
-          <div className="powerup-item">
-            <div className="powerup-color speed"></div>
-            <span>Speed Boost</span>
-          </div>
-          <div className="powerup-item">
-            <div className="powerup-color fire-rate"></div>
-            <span>Rapid Fire</span>
-          </div>
-          <div className="powerup-item">
-            <div className="powerup-color damage"></div>
-            <span>Damage Boost</span>
-          </div>
-        </div>
       </div>
       
-      <canvas
-        ref={canvasRef}
-        width={GAME_CONFIG.canvasWidth}
-        height={GAME_CONFIG.canvasHeight}
-        style={{ border: '2px solid #34495e' }}
-      />
-      
-      <div style={{ marginTop: '10px', color: '#ecf0f1', fontFamily: 'Courier New', textAlign: 'center' }}>
-        <p>Survive the waves of enemies and collect power-ups!</p>
-        {gameState.gameOver && <p style={{ color: '#e74c3c', fontWeight: 'bold' }}>Press R to Restart</p>}
+      <div className="game-main">
+        <div className="game-sidebar">
+          <div className="controls">
+            <div className="control-group">
+              <h3>Movement</h3>
+              <p>W - Move Up</p>
+              <p>A - Move Left</p>
+              <p>S - Move Down</p>
+              <p>D - Move Right</p>
+            </div>
+            <div className="control-group">
+              <h3>Combat</h3>
+              <p>↑ - Shoot Up</p>
+              <p>← - Shoot Left</p>
+              <p>↓ - Shoot Down</p>
+              <p>→ - Shoot Right</p>
+            </div>
+            <div className="control-group">
+              <h3>Game Controls</h3>
+              <p>SPACE - Start/Pause</p>
+              <p>R - Restart</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="game-center">
+          <canvas
+            ref={canvasRef}
+            width={GAME_CONFIG.canvasWidth}
+            height={GAME_CONFIG.canvasHeight}
+            style={{ border: '2px solid #34495e' }}
+          />
+          
+          {!gameState.gameStarted && (
+            <div className="start-menu">
+              <h2>Press SPACE to Start</h2>
+              <p>Survive the waves of enemies and collect power-ups!</p>
+            </div>
+          )}
+          
+          {gameState.paused && gameState.gameStarted && (
+            <div className="pause-menu">
+              <h2>Game Paused</h2>
+              <p>Press SPACE to Resume</p>
+            </div>
+          )}
+          
+          {gameState.gameOver && (
+            <div className="game-over-menu">
+              <h2>Game Over</h2>
+              <p>Final Score: {gameState.score}</p>
+              <p>Press R to Restart</p>
+            </div>
+          )}
+        </div>
+        
+        <div className="game-sidebar">
+          <div className="powerup-info">
+            <h3>Power-ups</h3>
+            <div className="powerup-item">
+              <div className="powerup-color health"></div>
+              <span>Health Pack (+25 HP)</span>
+            </div>
+            <div className="powerup-item">
+              <div className="powerup-color speed"></div>
+              <span>Speed Boost</span>
+            </div>
+            <div className="powerup-item">
+              <div className="powerup-color fire-rate"></div>
+              <span>Rapid Fire</span>
+            </div>
+            <div className="powerup-item">
+              <div className="powerup-color damage"></div>
+              <span>Damage Boost</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
