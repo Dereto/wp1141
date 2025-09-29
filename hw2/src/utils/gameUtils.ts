@@ -8,6 +8,16 @@ export const GAME_CONFIG = {
   fps: 60
 };
 
+export const DIFFICULTY_CONFIG = {
+  // Difficulty progression: every 200 points increases difficulty (slower than before)
+  pointsPerDifficulty: 200,
+  // Spawn system configuration
+  baseSpawnInterval: 180, // frames (3 seconds at 60fps)
+  minSpawnInterval: 60,   // minimum 1 second
+  maxBatchSize: 5,        // maximum enemies spawned at once
+  minBatchSize: 1         // minimum enemies spawned at once
+};
+
 export const PLAYER_CONFIG = {
   size: 24,
   speed: 2,
@@ -162,4 +172,42 @@ export function getRandomSpawnPosition(): Position {
     default:
       return { x: 0, y: 0 };
   }
+}
+
+export function calculateDifficulty(score: number): number {
+  return Math.floor(score / DIFFICULTY_CONFIG.pointsPerDifficulty) + 1;
+}
+
+export function getSpawnInterval(difficulty: number): number {
+  const { baseSpawnInterval, minSpawnInterval } = DIFFICULTY_CONFIG;
+  
+  // Create a cycle: 3s -> 2.5s -> 2s -> 1.5s -> 1s, then reset to 3s with batch size 2
+  const cycleLength = 5; // 5 difficulties per cycle
+  const cyclePosition = (difficulty - 1) % cycleLength;
+  
+  // Reduce interval by 30 frames (0.5s) per step in cycle
+  const interval = Math.max(minSpawnInterval, baseSpawnInterval - (cyclePosition * 30));
+  return interval;
+}
+
+export function getSpawnBatchSize(difficulty: number): number {
+  const { minBatchSize, maxBatchSize } = DIFFICULTY_CONFIG;
+  
+  // Increase batch size every 5 difficulties (every full cycle)
+  const batchSize = Math.min(maxBatchSize, minBatchSize + Math.floor((difficulty - 1) / 5));
+  return Math.max(minBatchSize, batchSize);
+}
+
+export function getAvailableEnemyTypes(difficulty: number): EnemyType[] {
+  let enemyTypes = [EnemyType.BASIC];
+  
+  if (difficulty >= 2) enemyTypes.push(EnemyType.FAST);
+  if (difficulty >= 3) enemyTypes.push(EnemyType.HEAVY);
+  if (difficulty >= 5) enemyTypes.push(EnemyType.BOSS);
+  
+  return enemyTypes;
+}
+
+export function hasBossOnField(enemies: Enemy[]): boolean {
+  return enemies.some(enemy => enemy.type === EnemyType.BOSS);
 }

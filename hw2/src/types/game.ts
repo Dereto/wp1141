@@ -68,11 +68,12 @@ export interface GameState {
   enemies: Enemy[];
   powerUps: PowerUp[];
   score: number;
-  level: number;
+  difficulty: number;
   gameOver: boolean;
   paused: boolean;
   keys: { [key: string]: boolean };
   spawnTimer: number;
+  spawnBatchSize: number;
   gameStarted: boolean;
 }
 

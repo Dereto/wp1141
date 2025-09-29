@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GameState, Player, Enemy, Bullet, PowerUp, Position, Velocity, EnemyType, PowerUpType } from '../types/game';
-import { createPlayer, GAME_CONFIG, PLAYER_CONFIG, createEnemy, createBullet, createPowerUp, checkCollision, distance, clamp, getRandomSpawnPosition, randomBetween, ENEMY_CONFIGS } from '../utils/gameUtils';
+import { createPlayer, GAME_CONFIG, PLAYER_CONFIG, createEnemy, createBullet, createPowerUp, checkCollision, distance, clamp, getRandomSpawnPosition, randomBetween, ENEMY_CONFIGS, DIFFICULTY_CONFIG, calculateDifficulty, getSpawnInterval, getSpawnBatchSize, getAvailableEnemyTypes, hasBossOnField } from '../utils/gameUtils';
 
 const GameBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -11,11 +11,12 @@ const GameBoard: React.FC = () => {
     enemies: [],
     powerUps: [],
     score: 0,
-    level: 1,
+    difficulty: 1,
     gameOver: false,
     paused: false,
     keys: {},
     spawnTimer: 0,
+    spawnBatchSize: 1,
     gameStarted: false
   }));
 
@@ -48,8 +49,7 @@ const GameBoard: React.FC = () => {
         // Spawn power-ups
         spawnPowerUps(newState);
         
-        // Check for level progression
-        checkLevelProgression(newState);
+        // Difficulty is now calculated automatically in spawnEnemies
         
         return newState;
       });
@@ -254,7 +254,6 @@ const GameBoard: React.FC = () => {
         }
           // Non-boss enemies die immediately on collision (no points)
         if (enemy.type !== EnemyType.BOSS) {
-          console.log(`Enemy ${enemy.type} died from collision with player`);
           collidingEnemyIds.push(enemy.id);
         }
       }
@@ -268,30 +267,49 @@ const GameBoard: React.FC = () => {
     // Update spawn timer
     state.spawnTimer++;
     
-    // Calculate spawn interval based on level (higher level = faster spawning)
-    const baseSpawnInterval = 120; // frames (2 seconds at 60fps)
-    const levelPenalty = Math.max(0, (state.level - 1) * 10); // reduce interval by 10 frames per level
-    const spawnInterval = Math.max(30, baseSpawnInterval - levelPenalty); // minimum 0.5 seconds
+    // Calculate current difficulty based on score
+    const currentDifficulty = calculateDifficulty(state.score);
+    state.difficulty = currentDifficulty;
     
-    // Spawn enemy if timer reached and we haven't hit the enemy limit
+    // Get spawn configuration based on difficulty
+    const spawnInterval = getSpawnInterval(currentDifficulty);
+    const batchSize = getSpawnBatchSize(currentDifficulty);
+    state.spawnBatchSize = batchSize;
+    
+    // Check if we should spawn enemies
     if (state.spawnTimer >= spawnInterval) {
-      let enemyTypes = [EnemyType.BASIC];
+      // Get available enemy types for current difficulty
+      const availableEnemyTypes = getAvailableEnemyTypes(currentDifficulty);
       
-      // Add more enemy types as level increases
-      if (state.level >= 2) enemyTypes.push(EnemyType.FAST);
-      if (state.level >= 3) enemyTypes.push(EnemyType.HEAVY);
-      if (state.level >= 5 && Math.random() < 0.15) enemyTypes = [EnemyType.BOSS];
+      // Spawn enemies in batch
+      for (let i = 0; i < batchSize; i++) {
+        let enemyType: EnemyType;
+        
+        // Boss spawning logic - only if no boss exists and chance allows
+        if (availableEnemyTypes.includes(EnemyType.BOSS) && 
+            !hasBossOnField(state.enemies) && 
+            Math.random() < 0.15) {
+          enemyType = EnemyType.BOSS;
+        } else {
+          // Choose from available types (excluding boss if one exists)
+          const typesToChooseFrom = hasBossOnField(state.enemies) 
+            ? availableEnemyTypes.filter(type => type !== EnemyType.BOSS)
+            : availableEnemyTypes;
+          enemyType = typesToChooseFrom[Math.floor(Math.random() * typesToChooseFrom.length)];
+        }
+        
+        const enemy = createEnemy(enemyType, getRandomSpawnPosition());
+        
+        // Scale enemy stats with difficulty
+        enemy.health = Math.floor(enemy.health * (1 + (currentDifficulty - 1) * 0.2));
+        enemy.maxHealth = enemy.health;
+        enemy.speed = enemy.speed * (1 + (currentDifficulty - 1) * 0.05);
+        
+        state.enemies.push(enemy);
+      }
       
-      const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-      const enemy = createEnemy(type, getRandomSpawnPosition());
-      
-      // Scale enemy stats with level
-      enemy.health = Math.floor(enemy.health * (1 + (state.level - 1) * 0.3));
-      enemy.maxHealth = enemy.health;
-      enemy.speed = enemy.speed * (1 + (state.level - 1) * 0.1);
-      
-      state.enemies.push(enemy);
-      state.spawnTimer = 0; // Reset timer
+      // Reset timer
+      state.spawnTimer = 0;
     }
   };
 
@@ -307,14 +325,6 @@ const GameBoard: React.FC = () => {
     }
   };
 
-  const checkLevelProgression = (state: GameState) => {
-    const requiredScore = state.level * 100; // 100 points per level
-    if (state.score >= requiredScore) {
-      state.level++;
-      // Heal player slightly on level up
-      state.player.health = Math.min(state.player.maxHealth, state.player.health + 20);
-    }
-  };
 
   const drawGrid = (ctx: CanvasRenderingContext2D) => {
     ctx.strokeStyle = '#34495e';
@@ -438,42 +448,9 @@ const GameBoard: React.FC = () => {
     ctx.fillStyle = '#ecf0f1';
     ctx.font = '16px Courier New';
     ctx.fillText(`Score: ${state.score}`, 10, 25);
-    ctx.fillText(`Level: ${state.level}`, 10, 45);
+    ctx.fillText(`Difficulty: ${state.difficulty}`, 10, 45);
     ctx.fillText(`Health: ${state.player.health}/${state.player.maxHealth}`, 10, 65);
     ctx.fillText(`Enemies: ${state.enemies.length}`, 10, 85);
-    
-    // Show spawn timer progress (optional debug info)
-    const spawnInterval = Math.max(30, 120 - (state.level - 1) * 10);
-    const progress = Math.min(1, state.spawnTimer / spawnInterval);
-    ctx.fillStyle = '#7f8c8d';
-    ctx.fillText(`Next spawn: ${Math.ceil((spawnInterval - state.spawnTimer) / 60)}s`, 10, 105);
-    
-    // Debug: Show enemy health info
-    if (state.enemies.length > 0) {
-      ctx.fillStyle = '#f39c12';
-      ctx.font = '12px Courier New';
-      state.enemies.forEach((enemy, index) => {
-        const enemyType = enemy.type === EnemyType.BOSS ? 'BOSS' : enemy.type.toUpperCase();
-        ctx.fillText(`${enemyType} ${index + 1}: ${enemy.health}/${enemy.maxHealth}`, 10, 125 + (index * 15));
-      });
-    }
-    
-    // Show collision death info
-    ctx.fillStyle = '#e67e22';
-    ctx.font = '12px Courier New';
-    ctx.fillText('Collision = Death (no points)', 10, 125 + (state.enemies.length * 15) + 20);
-    ctx.fillText('Boss collision = Damage only', 10, 125 + (state.enemies.length * 15) + 35);
-    
-    // Debug: Show collision detection
-    ctx.fillStyle = '#9b59b6';
-    ctx.font = '12px Courier New';
-    const playerPos = state.player.position;
-    state.enemies.forEach((enemy, index) => {
-      const isColliding = checkCollision(state.player, enemy);
-      if (isColliding) {
-        ctx.fillText(`COLLISION with ${enemy.type}`, 10, 125 + (state.enemies.length * 15) + 50 + (index * 15));
-      }
-    });
     
     if (state.gameOver) {
       ctx.fillStyle = '#e74c3c';
@@ -507,11 +484,12 @@ const GameBoard: React.FC = () => {
             enemies: [],
             powerUps: [],
             score: 0,
-            level: 1,
+            difficulty: 1,
             gameOver: false,
             paused: false,
             keys: {},
             spawnTimer: 0,
+            spawnBatchSize: 1,
             gameStarted: false
           });
         }

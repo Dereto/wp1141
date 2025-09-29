@@ -7,9 +7,9 @@ A React TypeScript recreation of the "Journey of the Prairie King" minigame from
 - **Top-down shooter gameplay** with WASD movement and arrow key shooting
 - **Multiple enemy types** with different behaviors and stats
 - **Power-up system** with health packs, speed boosts, and fire rate increases
-- **Progressive difficulty** with level-based enemy scaling
+- **Progressive difficulty** with score-based enemy scaling
 - **Collision detection** between bullets, enemies, and player
-- **Score system** with level progression
+- **Score system** with difficulty progression
 - **Pixel art aesthetic** matching the original game style
 
 ## Controls
@@ -34,7 +34,7 @@ A React TypeScript recreation of the "Journey of the Prairie King" minigame from
 - **Basic Enemies** (Red) - Standard enemies with moderate health and speed
 - **Fast Enemies** (Purple) - Quick but fragile enemies
 - **Heavy Enemies** (Brown) - Slow but tanky enemies with high health
-- **Boss Enemies** (Dark) - Rare, powerful enemies that appear at higher levels
+- **Boss Enemies** (Orange) - Rare, powerful enemies that appear at higher difficulties (max 1 on field)
 
 ## Power-ups
 
@@ -45,8 +45,10 @@ A React TypeScript recreation of the "Journey of the Prairie King" minigame from
 
 ## Game Mechanics
 
-- **Level Progression**: Advance to the next level by reaching the required score
-- **Enemy Scaling**: Enemies become stronger and more numerous at higher levels
+- **Difficulty Progression**: Difficulty increases every 200 points (slower, more balanced progression)
+- **Cyclical Enemy Spawning**: Enemies spawn in cycles - 3s/1 enemy → 2.5s/1 enemy → ... → 1s/1 enemy → 3s/2 enemies → ...
+- **Enemy Scaling**: Enemies become stronger and more numerous at higher difficulties
+- **Boss Limitation**: Maximum 1 boss on field at any time to encourage strategic targeting
 - **Collision System**: Precise collision detection for all game objects
 - **Health System**: Player health decreases when touching enemies
 - **Score System**: Earn points by defeating enemies
