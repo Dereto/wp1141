@@ -149,7 +149,8 @@ const GameBoard: React.FC = () => {
 
     // Handle shooting
     const now = Date.now();
-    if (now - player.lastShot >= player.fireRate) {
+    const fireInterval = 1000 / player.fireRate; // Convert BPS to milliseconds
+    if (now - player.lastShot >= fireInterval) {
       if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
         const bulletVelocity: Velocity = { x: 0, y: 0 };
         
@@ -185,14 +186,160 @@ const GameBoard: React.FC = () => {
 
   const updateEnemies = (state: GameState) => {
     state.enemies.forEach(enemy => {
-      // Simple AI: move towards player
-      const dx = state.player.position.x - enemy.position.x;
-      const dy = state.player.position.y - enemy.position.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (enemy.type === EnemyType.HUNTER) {
+        // Hunter AI: move towards target position, then overshoot by constant distance
+        if (enemy.targetPosition) {
+          const dx = enemy.targetPosition.x - enemy.position.x;
+          const dy = enemy.targetPosition.y - enemy.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist > 0) {
-        enemy.velocity.x = (dx / dist) * enemy.speed;
-        enemy.velocity.y = (dy / dist) * enemy.speed;
+          if (dist > 5) { // Still moving towards target
+            if (dist > 0) {
+              enemy.velocity.x = (dx / dist) * enemy.speed;
+              enemy.velocity.y = (dy / dist) * enemy.speed;
+            }
+          } else { // Reached target, set new target with overshoot
+            // Calculate direction from current position to player
+            const playerDx = state.player.position.x - enemy.position.x;
+            const playerDy = state.player.position.y - enemy.position.y;
+            const playerDist = Math.sqrt(playerDx * playerDx + playerDy * playerDy);
+            
+            if (playerDist > 0) {
+              // Set target to player position plus extra distance in same direction
+              const overshootDistance = 100; // Constant overshoot distance
+              const directionX = playerDx / playerDist;
+              const directionY = playerDy / playerDist;
+              
+              let targetX = state.player.position.x + directionX * overshootDistance;
+              let targetY = state.player.position.y + directionY * overshootDistance;
+              
+              // Clamp target position to stay within bounds
+              targetX = Math.max(50, Math.min(GAME_CONFIG.canvasWidth - 50, targetX));
+              targetY = Math.max(50, Math.min(GAME_CONFIG.canvasHeight - 50, targetY));
+              
+              enemy.targetPosition = {
+                x: targetX,
+                y: targetY
+              };
+            } else {
+              // Player is exactly on top of hunter, just set target to player position
+              enemy.targetPosition = { ...state.player.position };
+            }
+          }
+        } else {
+          // No target set, set initial target
+          enemy.targetPosition = { ...state.player.position };
+        }
+      } else if (enemy.type === EnemyType.GHOST) {
+        // Ghost AI: teleport every 10 seconds, then move towards player
+        const now = Date.now();
+        const teleportInterval = 10000; // 10 seconds
+        
+        if (enemy.lastTeleport && (now - enemy.lastTeleport) >= teleportInterval) {
+          // Teleport to random position at least as far away as original distance
+          const playerX = state.player.position.x;
+          const playerY = state.player.position.y;
+          const ghostX = enemy.position.x;
+          const ghostY = enemy.position.y;
+          
+          // Calculate original distance from player
+          const originalDistance = Math.sqrt(
+            (playerX - ghostX) ** 2 + (playerY - ghostY) ** 2
+          );
+          
+          // Try to find a valid random position
+          let attempts = 0;
+          let newX, newY, newDistance;
+          
+          do {
+            // Generate random position within bounds
+            newX = Math.random() * (GAME_CONFIG.canvasWidth - 100) + 50;
+            newY = Math.random() * (GAME_CONFIG.canvasHeight - 100) + 50;
+            
+            // Calculate distance from player to new position
+            newDistance = Math.sqrt(
+              (playerX - newX) ** 2 + (playerY - newY) ** 2
+            );
+            
+            attempts++;
+          } while (newDistance < originalDistance && attempts < 50);
+          
+          // If we couldn't find a valid position after 50 attempts, use the last generated position
+          enemy.position.x = newX;
+          enemy.position.y = newY;
+          enemy.lastTeleport = now;
+        }
+        
+        // Standard movement towards player
+        const dx = state.player.position.x - enemy.position.x;
+        const dy = state.player.position.y - enemy.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+          enemy.velocity.x = (dx / dist) * enemy.speed;
+          enemy.velocity.y = (dy / dist) * enemy.speed;
+        }
+      } else if (enemy.type === EnemyType.HEAVY) {
+        // Heavy AI: shield ability every 20 seconds for 3 seconds
+        const now = Date.now();
+        const shieldInterval = 20000; // 20 seconds
+        const shieldDuration = 3000; // 3 seconds
+        
+        if (enemy.lastShield > 0) {
+          const timeSinceLastShield = now - enemy.lastShield;
+          
+          if (timeSinceLastShield >= shieldInterval) {
+            // Activate shield
+            enemy.lastShield = now;
+            // Stop movement during shield
+            enemy.velocity.x = 0;
+            enemy.velocity.y = 0;
+          } else if (timeSinceLastShield < shieldDuration) {
+            // Shield is active, stay in place
+            enemy.velocity.x = 0;
+            enemy.velocity.y = 0;
+          } else {
+            // Shield is over, resume normal movement
+            const dx = state.player.position.x - enemy.position.x;
+            const dy = state.player.position.y - enemy.position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > 0) {
+              enemy.velocity.x = (dx / dist) * enemy.speed;
+              enemy.velocity.y = (dy / dist) * enemy.speed;
+            }
+          }
+        } else {
+          // No shield timer set, move normally and check if it's time to activate first shield
+          const dx = state.player.position.x - enemy.position.x;
+          const dy = state.player.position.y - enemy.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist > 0) {
+            enemy.velocity.x = (dx / dist) * enemy.speed;
+            enemy.velocity.y = (dy / dist) * enemy.speed;
+          }
+          
+          // Check if it's time to activate first shield (after 20 seconds from when this enemy was created)
+          if (enemy.spawnTime) {
+            const timeSinceSpawn = now - enemy.spawnTime;
+            if (timeSinceSpawn >= shieldInterval) {
+              enemy.lastShield = now;
+              enemy.velocity.x = 0;
+              enemy.velocity.y = 0;
+            }
+          }
+        }
+      } else {
+        // Standard AI: move towards player
+        const dx = state.player.position.x - enemy.position.x;
+        const dy = state.player.position.y - enemy.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+          enemy.velocity.x = (dx / dist) * enemy.speed;
+          enemy.velocity.y = (dy / dist) * enemy.speed;
+        }
       }
 
       enemy.position.x += enemy.velocity.x;
@@ -222,6 +369,18 @@ const GameBoard: React.FC = () => {
     state.bullets = state.bullets.filter(bullet => {
       const hitEnemy = state.enemies.find(enemy => checkCollision(bullet, enemy));
       if (hitEnemy) {
+        // Check if heavy enemy has active shield
+        if (hitEnemy.type === EnemyType.HEAVY && hitEnemy.lastShield) {
+          const now = Date.now();
+          const timeSinceLastShield = now - hitEnemy.lastShield;
+          const shieldDuration = 3000; // 3 seconds
+          
+          if (timeSinceLastShield < shieldDuration) {
+            // Shield is active, bullet is absorbed
+            return false; // Remove bullet but don't damage enemy
+          }
+        }
+        
         hitEnemy.health -= bullet.damage;
         return false; // Remove bullet
       }
@@ -243,6 +402,7 @@ const GameBoard: React.FC = () => {
     state.enemies.forEach(enemy => {
       if (checkCollision(state.player, enemy)) {
         const now = Date.now();
+        
         if (now - enemy.lastAttack >= 1000) { // 1 second cooldown
           state.player.health -= enemy.damage;
           enemy.lastAttack = now;
@@ -255,7 +415,19 @@ const GameBoard: React.FC = () => {
           }
         }
           // Non-boss enemies die immediately on collision (no points)
-        if (enemy.type !== EnemyType.BOSS) {
+        // Exception: Heavy enemies with active shield don't die on collision
+        let shouldDieOnCollision = enemy.type !== EnemyType.BOSS;
+        if (enemy.type === EnemyType.HEAVY && enemy.lastShield && enemy.lastShield > 0) {
+          const timeSinceLastShield = now - enemy.lastShield;
+          const shieldDuration = 3000; // 3 seconds
+          
+          if (timeSinceLastShield < shieldDuration) {
+            // Shield is active, don't die on collision
+            shouldDieOnCollision = false;
+          }
+        }
+        
+        if (shouldDieOnCollision) {
           collidingEnemyIds.push(enemy.id);
         }
       }
@@ -300,7 +472,7 @@ const GameBoard: React.FC = () => {
           enemyType = typesToChooseFrom[Math.floor(Math.random() * typesToChooseFrom.length)];
         }
         
-        const enemy = createEnemy(enemyType, getRandomSpawnPosition());
+        const enemy = createEnemy(enemyType, getRandomSpawnPosition(), state.player.position);
         
         // Scale enemy stats with difficulty
         enemy.health = Math.floor(enemy.health * (1 + (currentDifficulty - 1) * 0.2));
@@ -317,7 +489,7 @@ const GameBoard: React.FC = () => {
 
   const spawnPowerUps = (state: GameState) => {
     if (Math.random() < 0.001) { // Very low chance
-      const powerUpTypes = [PowerUpType.HEALTH, PowerUpType.SPEED, PowerUpType.FIRE_RATE];
+      const powerUpTypes = [PowerUpType.HEALTH, PowerUpType.SPEED, PowerUpType.FIRE_RATE, PowerUpType.DAMAGE];
       const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
       const powerUp = createPowerUp(type, {
         x: randomBetween(50, GAME_CONFIG.canvasWidth - 50),
@@ -420,14 +592,26 @@ const GameBoard: React.FC = () => {
 
   const drawEnemy = (ctx: CanvasRenderingContext2D, enemy: Enemy) => {
     const colors: { [key in EnemyType]: string } = {
-      [EnemyType.BASIC]: '#e74c3c',
-      [EnemyType.FAST]: '#9b59b6',
-      [EnemyType.HEAVY]: '#8b4513',
-      [EnemyType.BOSS]: '#e67e22'
+      [EnemyType.BASIC]: '#e74c3c',     // Red - Basic threat
+      [EnemyType.GHOST]: '#9b59b6',     // Purple - Mystical teleport
+      [EnemyType.HEAVY]: '#8b4513',     // Brown - Armored tank (more visible)
+      [EnemyType.BOSS]: '#e67e22',      // Orange - Boss warning
+      [EnemyType.HUNTER]: '#27ae60'     // Green - Fast predator
     };
     
-    // Use normal color regardless of health
-    ctx.fillStyle = colors[enemy.type];
+    // Check if heavy enemy has active shield
+    let color = colors[enemy.type];
+    if (enemy.type === EnemyType.HEAVY && enemy.lastShield) {
+      const now = Date.now();
+      const timeSinceLastShield = now - enemy.lastShield;
+      const shieldDuration = 3000; // 3 seconds
+      
+      if (timeSinceLastShield < shieldDuration) {
+        color = '#87CEEB'; // Light blue for shield
+      }
+    }
+    
+    ctx.fillStyle = color;
     
     ctx.fillRect(
       enemy.position.x - enemy.size / 2,
@@ -522,7 +706,7 @@ const GameBoard: React.FC = () => {
     ctx.font = '12px Courier New';
     ctx.fillStyle = '#ecf0f1';
     ctx.fillText(`Damage: ${state.player.damage}`, 10, 145);
-    ctx.fillText(`Fire Rate: ${state.player.fireRate}ms`, 10, 160);
+    ctx.fillText(`Fire Rate: ${state.player.fireRate.toFixed(1)} BPS`, 10, 160);
     ctx.fillText(`Speed: ${state.player.speed.toFixed(1)}`, 10, 175);
     ctx.fillText(`Bullet Size: ${state.player.bulletSize}`, 10, 190);
     
@@ -621,8 +805,8 @@ const GameBoard: React.FC = () => {
   return (
     <div className="game-container">
       <div className="game-header">
-        <h1>Journey of the Prairie King</h1>
-        <p>A Stardew Valley Minigame Recreation</p>
+        <h1>Prairie King: Enhanced Edition</h1>
+        <p>Advanced top-down shooter with enemy AI and progression system</p>
       </div>
       
       <div className="game-main">
@@ -686,7 +870,7 @@ const GameBoard: React.FC = () => {
             <h3>Power-ups</h3>
             <div className="powerup-item">
               <div className="powerup-color health"></div>
-              <span>Health Pack (+25 HP)</span>
+              <span>Health Pack </span>
             </div>
             <div className="powerup-item">
               <div className="powerup-color speed"></div>

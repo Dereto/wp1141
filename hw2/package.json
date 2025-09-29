@@ -1,7 +1,7 @@
 {
   "name": "prairie-king",
   "version": "1.0.0",
-  "description": "Journey of the Prairie King - Stardew Valley Minigame Recreation",
+  "description": "Prairie King: Enhanced Edition - Advanced top-down shooter with enemy AI and progression system",
   "main": "index.js",
   "scripts": {
     "start": "webpack serve --mode development",

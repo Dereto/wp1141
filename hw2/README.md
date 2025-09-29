@@ -1,15 +1,22 @@
-# Journey of the Prairie King
+# Prairie King: Enhanced Edition
 
-A React TypeScript recreation of the "Journey of the Prairie King" minigame from Stardew Valley.
+A React TypeScript recreation of the "Journey of the Prairie King" minigame from Stardew Valley, enhanced with advanced enemy AI, dynamic difficulty scaling, and a comprehensive progression system.
 
 ## Game Features
 
 - **Top-down shooter gameplay** with WASD movement and arrow key shooting
-- **Multiple enemy types** with different behaviors and stats
-- **Power-up system** with health packs, speed boosts, and fire rate increases
-- **Progressive difficulty** with score-based enemy scaling
-- **Collision detection** between bullets, enemies, and player
-- **Score system** with difficulty progression
+- **5 Unique Enemy Types** with special abilities and behaviors:
+  - **Basic**: Standard red enemies with balanced stats
+  - **Ghost**: Purple enemies that teleport randomly every 10 seconds
+  - **Heavy**: Brown armored tanks with shield ability every 20 seconds
+  - **Hunter**: Green fast predators with overshoot targeting
+  - **Boss**: Orange high-health enemies (max 1 on field)
+- **Advanced Power-up System** with health packs, speed boosts, fire rate increases, and damage boosts
+- **Time-based Difficulty Scaling** that increases every 20 seconds
+- **Level Progression System** using score as XP with random upgrades
+- **Dynamic Enemy Spawning** with cyclical spawn patterns and batch sizes
+- **Collision Detection** between bullets, enemies, and player
+- **Score System** with balanced enemy point values
 - **Pixel art aesthetic** matching the original game style
 
 ## Controls
@@ -32,16 +39,17 @@ A React TypeScript recreation of the "Journey of the Prairie King" minigame from
 ## Enemy Types
 
 - **Basic Enemies** (Red) - Standard enemies with moderate health and speed
-- **Fast Enemies** (Purple) - Quick but fragile enemies
-- **Heavy Enemies** (Brown) - Slow but tanky enemies with high health
+- **Ghost Enemies** (Purple) - Teleport randomly every 10 seconds
+- **Heavy Enemies** (Brown) - Shield ability every 20 seconds, become invulnerable
+- **Hunter Enemies** (Green) - Fast predators with overshoot targeting
 - **Boss Enemies** (Orange) - Rare, powerful enemies that appear at higher difficulties (max 1 on field)
 
 ## Power-ups
 
-- **Health Pack** (Red) - Restores 25 HP
-- **Speed Boost** (Blue) - Increases movement speed
-- **Rapid Fire** (Orange) - Increases fire rate
-- **Damage Boost** (Purple) - Increases bullet damage
+- **Health Pack** (Red) - Full heal
+- **Speed Boost** (Blue) - 50% speed increase for 10 seconds
+- **Rapid Fire** (Orange) - 50% fire rate increase for 10 seconds
+- **Damage Boost** (Purple) - 50% damage increase for 10 seconds
 
 ## Game Mechanics
 

@@ -47,13 +47,18 @@ export interface Enemy {
   size: number;
   type: EnemyType;
   lastAttack: number;
+  targetPosition?: Position; // For hunter enemies
+  lastTeleport?: number; // For ghost enemies
+  lastShield?: number; // For heavy enemies
+  spawnTime?: number; // When this enemy was created
 }
 
 export enum EnemyType {
   BASIC = 'basic',
-  FAST = 'fast',
+  GHOST = 'ghost',
   HEAVY = 'heavy',
-  BOSS = 'boss'
+  BOSS = 'boss',
+  HUNTER = 'hunter'
 }
 
 export interface PowerUp {

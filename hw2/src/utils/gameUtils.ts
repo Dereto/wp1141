@@ -27,7 +27,7 @@ export const LEVEL_CONFIG = {
   // Upgrade effect amounts (linear scaling)
   upgradeAmounts: {
     [UpgradeType.DAMAGE]: 5,        // +5 damage per level
-    [UpgradeType.FIRE_RATE]: 20,    // -20ms fire rate per level (faster shooting)
+    [UpgradeType.FIRE_RATE]: 0.5,   // +0.5 bullets per second per level
     [UpgradeType.BULLET_SIZE]: 1,   // +1 pixel bullet size per level
     [UpgradeType.SPEED]: 0.2,       // +0.2 speed per level
     [UpgradeType.HEALTH]: 50        // +50 max health per level
@@ -38,7 +38,7 @@ export const PLAYER_CONFIG = {
   size: 24,
   speed: 2,
   maxHealth: 100,
-  fireRate: 300, // milliseconds between shots
+  fireRate: 2.5, // bullets per second
   damage: 30
 };
 
@@ -46,30 +46,37 @@ export const ENEMY_CONFIGS = {
   [EnemyType.BASIC]: {
     size: 20,
     speed: 0.5,
-    health: 20,
+    health: 25,
     damage: 20,
-    points: 10
+    points: 10  // Basic enemy - baseline score
   },
-  [EnemyType.FAST]: {
+  [EnemyType.GHOST]: {
     size: 16,
     speed: 1.5,
-    health: 10,
+    health: 15,
     damage: 15,
-    points: 15
+    points: 25  // Teleport ability makes it more challenging
   },
   [EnemyType.HEAVY]: {
     size: 28,
     speed: 0.25,
-    health: 40,
+    health: 50,
     damage: 40,
-    points: 25
+    points: 40  // Shield ability makes it much more challenging
+  },
+  [EnemyType.HUNTER]: {
+    size: 18,
+    speed: 2.5, // Fastest enemy
+    health: 10,  // Most fragile
+    damage: 25,
+    points: 30  // Overshoot targeting makes it challenging but fragile
   },
   [EnemyType.BOSS]: {
     size: 40,
     speed: 0.75,
     health: 200,
     damage: 60,
-    points: 100
+    points: 150 // Boss enemy - highest reward
   }
 };
 
@@ -92,7 +99,7 @@ export const POWERUP_CONFIGS = {
     size: 16,
     duration: 10000, // 10 seconds
     effect: (player: Player) => {
-      player.fireRate = player.fireRate * 0.5; // 50% faster firing (half the delay)
+      player.fireRate = player.fireRate * 1.5; // 50% faster firing (1.5x bullets per second)
     }
   },
   [PowerUpType.DAMAGE]: {
@@ -126,9 +133,10 @@ export function createPlayer(): Player {
   };
 }
 
-export function createEnemy(type: EnemyType, position: Position): Enemy {
+export function createEnemy(type: EnemyType, position: Position, playerPosition?: Position): Enemy {
   const config = ENEMY_CONFIGS[type];
-  return {
+  const now = Date.now();
+  const enemy: Enemy = {
     id: Math.random().toString(36).substr(2, 9),
     position,
     velocity: { x: 0, y: 0 },
@@ -138,8 +146,26 @@ export function createEnemy(type: EnemyType, position: Position): Enemy {
     speed: config.speed,
     size: config.size,
     type,
-    lastAttack: 0
+    lastAttack: 0,
+    spawnTime: now
   };
+
+  // Set target position for hunter enemies
+  if (type === EnemyType.HUNTER && playerPosition) {
+    enemy.targetPosition = { ...playerPosition };
+  }
+  
+  // Initialize teleport timer for ghost enemies
+  if (type === EnemyType.GHOST) {
+    enemy.lastTeleport = Date.now();
+  }
+  
+  // Initialize shield timer for heavy enemies - set to 0 so they don't start with shield active
+  if (type === EnemyType.HEAVY) {
+    enemy.lastShield = 0; // Will be set to current time when they first activate shield
+  }
+
+  return enemy;
 }
 
 export function createBullet(position: Position, velocity: Velocity, damage: number, bulletSize: number): Bullet {
@@ -229,8 +255,9 @@ export function getSpawnBatchSize(difficulty: number): number {
 export function getAvailableEnemyTypes(difficulty: number): EnemyType[] {
   let enemyTypes = [EnemyType.BASIC];
   
-  if (difficulty >= 2) enemyTypes.push(EnemyType.FAST);
+  if (difficulty >= 2) enemyTypes.push(EnemyType.GHOST);
   if (difficulty >= 3) enemyTypes.push(EnemyType.HEAVY);
+  if (difficulty >= 4) enemyTypes.push(EnemyType.HUNTER);
   if (difficulty >= 5) enemyTypes.push(EnemyType.BOSS);
   
   return enemyTypes;
@@ -305,7 +332,7 @@ export function applyUpgrade(player: Player, upgradeType: UpgradeType): void {
       player.damage += amount;
       break;
     case UpgradeType.FIRE_RATE:
-      player.fireRate = Math.max(50, player.fireRate - amount); // Minimum 50ms
+      player.fireRate += amount; // Add bullets per second
       break;
     case UpgradeType.BULLET_SIZE:
       player.bulletSize += amount;
@@ -341,7 +368,7 @@ export function updatePowerUpEffects(player: Player): void {
   
   // Reset to base values + level-up bonuses
   player.speed = player.baseSpeed + (player.levelUpBonuses[UpgradeType.SPEED] || 0);
-  player.fireRate = Math.max(50, player.baseFireRate - (player.levelUpBonuses[UpgradeType.FIRE_RATE] || 0));
+  player.fireRate = player.baseFireRate + (player.levelUpBonuses[UpgradeType.FIRE_RATE] || 0);
   player.damage = player.baseDamage + (player.levelUpBonuses[UpgradeType.DAMAGE] || 0);
   
   // Apply active power-up effects
