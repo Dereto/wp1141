@@ -45,8 +45,8 @@ A React TypeScript recreation of the "Journey of the Prairie King" minigame from
 
 ## Game Mechanics
 
-- **Difficulty Progression**: Difficulty increases every 200 points (slower, more balanced progression)
-- **Cyclical Enemy Spawning**: Enemies spawn in cycles - 3s/1 enemy → 2.5s/1 enemy → ... → 1s/1 enemy → 3s/2 enemies → ...
+- **Time-Based Difficulty**: Difficulty increases every 20 seconds for consistent progression
+- **Cyclical Enemy Spawning**: Enemies spawn in cycles - 2.5s/1 enemy → 2.2s/1 enemy → 1.9s/1 enemy → 1.6s/1 enemy → 1.3s/1 enemy → 1s/1 enemy → 2.5s/2 enemies → ...
 - **Enemy Scaling**: Enemies become stronger and more numerous at higher difficulties
 - **Boss Limitation**: Maximum 1 boss on field at any time to encourage strategic targeting
 - **Collision System**: Precise collision detection for all game objects

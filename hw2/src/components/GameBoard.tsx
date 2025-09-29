@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { GameState, Player, Enemy, Bullet, PowerUp, Position, Velocity, EnemyType, PowerUpType } from '../types/game';
-import { createPlayer, GAME_CONFIG, PLAYER_CONFIG, createEnemy, createBullet, createPowerUp, checkCollision, distance, clamp, getRandomSpawnPosition, randomBetween, ENEMY_CONFIGS, DIFFICULTY_CONFIG, calculateDifficulty, getSpawnInterval, getSpawnBatchSize, getAvailableEnemyTypes, hasBossOnField } from '../utils/gameUtils';
+import { GameState, Player, Enemy, Bullet, PowerUp, Position, Velocity, EnemyType, PowerUpType, UpgradeType, LevelUpPopup } from '../types/game';
+import { createPlayer, GAME_CONFIG, PLAYER_CONFIG, createEnemy, createBullet, createPowerUp, checkCollision, distance, clamp, getRandomSpawnPosition, randomBetween, ENEMY_CONFIGS, DIFFICULTY_CONFIG, calculateDifficulty, getSpawnInterval, getSpawnBatchSize, getAvailableEnemyTypes, hasBossOnField, LEVEL_CONFIG, calculateLevel, getRandomUpgrade, createLevelUpPopup, applyUpgrade, applyPowerUp, updatePowerUpEffects, getExperienceToNextLevel } from '../utils/gameUtils';
 
 const GameBoard: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,7 +17,9 @@ const GameBoard: React.FC = () => {
     keys: {},
     spawnTimer: 0,
     spawnBatchSize: 1,
-    gameStarted: false
+    gameStarted: false,
+    gameStartTime: 0,
+    levelUpPopups: []
   }));
 
   // Game loop
@@ -30,6 +32,9 @@ const GameBoard: React.FC = () => {
         
         // Update player position
         updatePlayer(newState);
+        
+        // Update power-up effects
+        updatePowerUpEffects(newState.player);
         
         // Update bullets
         updateBullets(newState);
@@ -48,6 +53,12 @@ const GameBoard: React.FC = () => {
         
         // Spawn power-ups
         spawnPowerUps(newState);
+        
+        // Check for level ups
+        checkLevelUp(newState);
+        
+        // Update level up popups
+        updateLevelUpPopups(newState);
         
         // Difficulty is now calculated automatically in spawnEnemies
         
@@ -91,6 +102,9 @@ const GameBoard: React.FC = () => {
 
     // Draw power-ups
     gameState.powerUps.forEach(powerUp => drawPowerUp(ctx, powerUp));
+
+    // Draw level up popups
+    gameState.levelUpPopups.forEach(popup => drawLevelUpPopup(ctx, popup));
 
     // Draw UI
     drawUI(ctx, gameState);
@@ -147,7 +161,9 @@ const GameBoard: React.FC = () => {
         if (bulletVelocity.x !== 0 || bulletVelocity.y !== 0) {
           const bullet = createBullet(
             { x: player.position.x, y: player.position.y },
-            bulletVelocity
+            bulletVelocity,
+            player.damage,
+            player.bulletSize
           );
           state.bullets.push(bullet);
           player.lastShot = now;
@@ -194,25 +210,11 @@ const GameBoard: React.FC = () => {
     // Power-ups don't move, just check for collection
     state.powerUps = state.powerUps.filter(powerUp => {
       if (checkCollision(state.player, powerUp)) {
-        applyPowerUp(state, powerUp);
+        applyPowerUp(state.player, powerUp.type);
         return false; // Remove power-up
       }
       return true;
     });
-  };
-
-  const applyPowerUp = (state: GameState, powerUp: PowerUp) => {
-    switch (powerUp.type) {
-      case PowerUpType.HEALTH:
-        state.player.health = Math.min(state.player.maxHealth, state.player.health + 25);
-        break;
-      case PowerUpType.SPEED:
-        state.player.speed = Math.min(8, state.player.speed + 1);
-        break;
-      case PowerUpType.FIRE_RATE:
-        state.player.fireRate = Math.max(100, state.player.fireRate - 50);
-        break;
-    }
   };
 
   const checkCollisions = (state: GameState) => {
@@ -267,8 +269,8 @@ const GameBoard: React.FC = () => {
     // Update spawn timer
     state.spawnTimer++;
     
-    // Calculate current difficulty based on score
-    const currentDifficulty = calculateDifficulty(state.score);
+    // Calculate current difficulty based on time
+    const currentDifficulty = calculateDifficulty(state.gameStartTime);
     state.difficulty = currentDifficulty;
     
     // Get spawn configuration based on difficulty
@@ -323,6 +325,36 @@ const GameBoard: React.FC = () => {
       });
       state.powerUps.push(powerUp);
     }
+  };
+
+  const checkLevelUp = (state: GameState) => {
+    // Update player experience to match score
+    state.player.experience = state.score;
+    
+    // Calculate new level
+    const newLevel = calculateLevel(state.player.experience);
+    
+    // Check if player leveled up
+    if (newLevel > state.player.level) {
+      state.player.level = newLevel;
+      
+      // Get random upgrade
+      const upgradeType = getRandomUpgrade();
+      
+      // Apply upgrade
+      applyUpgrade(state.player, upgradeType);
+      
+      // Create popup
+      const popup = createLevelUpPopup(upgradeType);
+      state.levelUpPopups.push(popup);
+    }
+  };
+
+  const updateLevelUpPopups = (state: GameState) => {
+    const now = Date.now();
+    state.levelUpPopups = state.levelUpPopups.filter(popup => {
+      return now - popup.timestamp < popup.duration;
+    });
   };
 
 
@@ -444,13 +476,67 @@ const GameBoard: React.FC = () => {
     ctx.fill();
   };
 
+  const drawLevelUpPopup = (ctx: CanvasRenderingContext2D, popup: LevelUpPopup) => {
+    const now = Date.now();
+    const elapsed = now - popup.timestamp;
+    const progress = elapsed / popup.duration;
+    
+    // Fade out effect
+    const alpha = Math.max(0, 1 - progress);
+    
+    // Position popup above player
+    const x = GAME_CONFIG.canvasWidth / 2;
+    const y = GAME_CONFIG.canvasHeight / 2 - 50 - (progress * 30); // Move up over time
+    
+    // Draw background
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha * 0.8})`;
+    ctx.fillRect(x - 100, y - 20, 200, 40);
+    
+    // Draw border
+    ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - 100, y - 20, 200, 40);
+    
+    // Draw text
+    ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+    ctx.font = 'bold 20px Courier New';
+    ctx.textAlign = 'center';
+    ctx.fillText(popup.message, x, y + 5);
+    ctx.textAlign = 'left';
+  };
+
   const drawUI = (ctx: CanvasRenderingContext2D, state: GameState) => {
     ctx.fillStyle = '#ecf0f1';
     ctx.font = '16px Courier New';
     ctx.fillText(`Score: ${state.score}`, 10, 25);
-    ctx.fillText(`Difficulty: ${state.difficulty}`, 10, 45);
-    ctx.fillText(`Health: ${state.player.health}/${state.player.maxHealth}`, 10, 65);
-    ctx.fillText(`Enemies: ${state.enemies.length}`, 10, 85);
+    ctx.fillText(`Level: ${state.player.level}`, 10, 45);
+    ctx.fillText(`Difficulty: ${state.difficulty}`, 10, 65);
+    ctx.fillText(`Health: ${state.player.health}/${state.player.maxHealth}`, 10, 85);
+    ctx.fillText(`Enemies: ${state.enemies.length}`, 10, 105);
+    
+    // Show experience progress
+    const expToNext = getExperienceToNextLevel(state.player.level, state.player.experience);
+    ctx.fillText(`XP to Next: ${expToNext}`, 10, 125);
+    
+    // Show resulting stats
+    ctx.font = '12px Courier New';
+    ctx.fillStyle = '#ecf0f1';
+    ctx.fillText(`Damage: ${state.player.damage}`, 10, 145);
+    ctx.fillText(`Fire Rate: ${state.player.fireRate}ms`, 10, 160);
+    ctx.fillText(`Speed: ${state.player.speed.toFixed(1)}`, 10, 175);
+    ctx.fillText(`Bullet Size: ${state.player.bulletSize}`, 10, 190);
+    
+    // Show active power-up effects
+    const activePowerUps = Object.keys(state.player.powerUpEffects);
+    if (activePowerUps.length > 0) {
+      ctx.fillStyle = '#f39c12';
+      ctx.fillText('Active Power-ups:', 10, 210);
+      activePowerUps.forEach((powerUp, index) => {
+        const effect = state.player.powerUpEffects[powerUp as PowerUpType];
+        const remaining = Math.ceil((effect.duration - (Date.now() - effect.startTime)) / 1000);
+        ctx.fillText(`${powerUp}: ${remaining}s`, 10, 225 + (index * 15));
+      });
+    }
     
     if (state.gameOver) {
       ctx.fillStyle = '#e74c3c';
@@ -490,14 +576,20 @@ const GameBoard: React.FC = () => {
             keys: {},
             spawnTimer: 0,
             spawnBatchSize: 1,
-            gameStarted: false
+            gameStarted: false,
+            gameStartTime: 0,
+            levelUpPopups: []
           });
         }
       }
       
       if (e.key === ' ' || e.key === 'Space') {
         if (!gameState.gameStarted) {
-          setGameState(prevState => ({ ...prevState, gameStarted: true }));
+          setGameState(prevState => ({ 
+            ...prevState, 
+            gameStarted: true,
+            gameStartTime: Date.now()
+          }));
         } else if (!gameState.gameOver) {
           setGameState(prevState => ({ ...prevState, paused: !prevState.paused }));
         }

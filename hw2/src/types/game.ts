@@ -17,6 +17,15 @@ export interface Player {
   fireRate: number;
   lastShot: number;
   size: number;
+  level: number;
+  experience: number;
+  damage: number;
+  bulletSize: number;
+  baseSpeed: number;
+  baseFireRate: number;
+  baseDamage: number;
+  powerUpEffects: { [key in PowerUpType]?: { startTime: number; duration: number } };
+  levelUpBonuses: { [key in UpgradeType]?: number };
 }
 
 export interface Bullet {
@@ -62,6 +71,22 @@ export enum PowerUpType {
   DAMAGE = 'damage'
 }
 
+export enum UpgradeType {
+  DAMAGE = 'damage',
+  FIRE_RATE = 'fireRate',
+  BULLET_SIZE = 'bulletSize',
+  SPEED = 'speed',
+  HEALTH = 'health'
+}
+
+export interface LevelUpPopup {
+  id: string;
+  type: UpgradeType;
+  message: string;
+  timestamp: number;
+  duration: number;
+}
+
 export interface GameState {
   player: Player;
   bullets: Bullet[];
@@ -75,6 +100,8 @@ export interface GameState {
   spawnTimer: number;
   spawnBatchSize: number;
   gameStarted: boolean;
+  gameStartTime: number;
+  levelUpPopups: LevelUpPopup[];
 }
 
 export interface GameConfig {

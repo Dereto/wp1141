@@ -1,5 +1,5 @@
-import { Position, Velocity, Player, Enemy, Bullet, PowerUp } from '../types/game';
-import { EnemyType, PowerUpType } from '../types/game';
+import { Position, Velocity, Player, Enemy, Bullet, PowerUp, LevelUpPopup } from '../types/game';
+import { EnemyType, PowerUpType, UpgradeType } from '../types/game';
 
 export const GAME_CONFIG = {
   canvasWidth: 800,
@@ -9,8 +9,8 @@ export const GAME_CONFIG = {
 };
 
 export const DIFFICULTY_CONFIG = {
-  // Difficulty progression: every 200 points increases difficulty (slower than before)
-  pointsPerDifficulty: 200,
+  // Difficulty progression: every 20 seconds increases difficulty
+  secondsPerDifficulty: 20,
   // Spawn system configuration
   baseSpawnInterval: 180, // frames (3 seconds at 60fps)
   minSpawnInterval: 60,   // minimum 1 second
@@ -18,40 +18,56 @@ export const DIFFICULTY_CONFIG = {
   minBatchSize: 1         // minimum enemies spawned at once
 };
 
+export const LEVEL_CONFIG = {
+  // Level progression: increasing XP requirements
+  baseXPPerLevel: 50,
+  xpIncreasePerLevel: 20, // Each level requires 25 more XP than the previous
+  // Popup configuration
+  popupDuration: 2000, // 2 seconds
+  // Upgrade effect amounts (linear scaling)
+  upgradeAmounts: {
+    [UpgradeType.DAMAGE]: 5,        // +5 damage per level
+    [UpgradeType.FIRE_RATE]: 20,    // -20ms fire rate per level (faster shooting)
+    [UpgradeType.BULLET_SIZE]: 1,   // +1 pixel bullet size per level
+    [UpgradeType.SPEED]: 0.2,       // +0.2 speed per level
+    [UpgradeType.HEALTH]: 50        // +50 max health per level
+  }
+};
+
 export const PLAYER_CONFIG = {
   size: 24,
   speed: 2,
-  maxHealth: 10000,
+  maxHealth: 100,
   fireRate: 300, // milliseconds between shots
-  damage: 25
+  damage: 30
 };
 
 export const ENEMY_CONFIGS = {
   [EnemyType.BASIC]: {
     size: 20,
     speed: 0.5,
-    health: 25,
+    health: 20,
     damage: 20,
     points: 10
   },
   [EnemyType.FAST]: {
     size: 16,
     speed: 1.5,
-    health: 15,
+    health: 10,
     damage: 15,
     points: 15
   },
   [EnemyType.HEAVY]: {
     size: 28,
     speed: 0.25,
-    health: 50,
+    health: 40,
     damage: 40,
     points: 25
   },
   [EnemyType.BOSS]: {
     size: 40,
     speed: 0.75,
-    health: 150,
+    health: 200,
     damage: 60,
     points: 100
   }
@@ -62,28 +78,28 @@ export const POWERUP_CONFIGS = {
     size: 16,
     duration: 0,
     effect: (player: Player) => {
-      player.health = Math.min(player.maxHealth, player.health + 25);
+      player.health = player.maxHealth; // Full heal
     }
   },
   [PowerUpType.SPEED]: {
     size: 16,
-    duration: 10000,
+    duration: 10000, // 10 seconds
     effect: (player: Player) => {
-      player.speed = Math.min(8, player.speed + 1);
+      player.speed = player.speed * 1.5; // 50% speed increase
     }
   },
   [PowerUpType.FIRE_RATE]: {
     size: 16,
-    duration: 10000,
+    duration: 10000, // 10 seconds
     effect: (player: Player) => {
-      player.fireRate = Math.max(100, player.fireRate - 50);
+      player.fireRate = player.fireRate * 0.5; // 50% faster firing (half the delay)
     }
   },
   [PowerUpType.DAMAGE]: {
     size: 16,
-    duration: 10000,
+    duration: 10000, // 10 seconds
     effect: (player: Player) => {
-      // This would be handled in bullet creation
+      player.damage = player.damage * 1.5; // 50% damage increase
     }
   }
 };
@@ -97,7 +113,16 @@ export function createPlayer(): Player {
     speed: PLAYER_CONFIG.speed,
     fireRate: PLAYER_CONFIG.fireRate,
     lastShot: 0,
-    size: PLAYER_CONFIG.size
+    size: PLAYER_CONFIG.size,
+    level: 1,
+    experience: 0,
+    damage: PLAYER_CONFIG.damage,
+    bulletSize: 5,
+    baseSpeed: PLAYER_CONFIG.speed,
+    baseFireRate: PLAYER_CONFIG.fireRate,
+    baseDamage: PLAYER_CONFIG.damage,
+    powerUpEffects: {},
+    levelUpBonuses: {}
   };
 }
 
@@ -117,13 +142,13 @@ export function createEnemy(type: EnemyType, position: Position): Enemy {
   };
 }
 
-export function createBullet(position: Position, velocity: Velocity, damage: number = PLAYER_CONFIG.damage): Bullet {
+export function createBullet(position: Position, velocity: Velocity, damage: number, bulletSize: number): Bullet {
   return {
     id: Math.random().toString(36).substr(2, 9),
     position,
     velocity,
     damage,
-    size: 5
+    size: bulletSize
   };
 }
 
@@ -174,27 +199,30 @@ export function getRandomSpawnPosition(): Position {
   }
 }
 
-export function calculateDifficulty(score: number): number {
-  return Math.floor(score / DIFFICULTY_CONFIG.pointsPerDifficulty) + 1;
+export function calculateDifficulty(gameStartTime: number): number {
+  const currentTime = Date.now();
+  const elapsedSeconds = (currentTime - gameStartTime) / 1000;
+  return Math.floor(elapsedSeconds / DIFFICULTY_CONFIG.secondsPerDifficulty) + 1;
 }
 
 export function getSpawnInterval(difficulty: number): number {
   const { baseSpawnInterval, minSpawnInterval } = DIFFICULTY_CONFIG;
   
-  // Create a cycle: 3s -> 2.5s -> 2s -> 1.5s -> 1s, then reset to 3s with batch size 2
-  const cycleLength = 5; // 5 difficulties per cycle
+  // Create a cycle: 2.5s -> 2.2s -> 1.9s -> 1.6s -> 1.3s -> 1s
+  const cycleLength = 6; // 6 difficulties per cycle
   const cyclePosition = (difficulty - 1) % cycleLength;
   
-  // Reduce interval by 30 frames (0.5s) per step in cycle
-  const interval = Math.max(minSpawnInterval, baseSpawnInterval - (cyclePosition * 30));
+  // Custom intervals for each step in the cycle
+  const cycleIntervals = [150, 132, 114, 96, 78, 60]; // frames (2.5s, 2.2s, 1.9s, 1.6s, 1.3s, 1s)
+  const interval = Math.max(minSpawnInterval, cycleIntervals[cyclePosition]);
   return interval;
 }
 
 export function getSpawnBatchSize(difficulty: number): number {
   const { minBatchSize, maxBatchSize } = DIFFICULTY_CONFIG;
   
-  // Increase batch size every 5 difficulties (every full cycle)
-  const batchSize = Math.min(maxBatchSize, minBatchSize + Math.floor((difficulty - 1) / 5));
+  // Increase batch size every 6 difficulties (every full cycle)
+  const batchSize = Math.min(maxBatchSize, minBatchSize + Math.floor((difficulty - 1) / 6));
   return Math.max(minBatchSize, batchSize);
 }
 
@@ -210,4 +238,126 @@ export function getAvailableEnemyTypes(difficulty: number): EnemyType[] {
 
 export function hasBossOnField(enemies: Enemy[]): boolean {
   return enemies.some(enemy => enemy.type === EnemyType.BOSS);
+}
+
+export function calculateLevel(experience: number): number {
+  let level = 1;
+  let xpNeeded = 0;
+  
+  while (xpNeeded <= experience) {
+    xpNeeded += LEVEL_CONFIG.baseXPPerLevel + (level - 1) * LEVEL_CONFIG.xpIncreasePerLevel;
+    if (xpNeeded <= experience) {
+      level++;
+    }
+  }
+  
+  return level;
+}
+
+export function getExperienceToNextLevel(currentLevel: number, currentXP: number): number {
+  let totalXPNeeded = 0;
+  for (let i = 1; i < currentLevel; i++) {
+    totalXPNeeded += LEVEL_CONFIG.baseXPPerLevel + (i - 1) * LEVEL_CONFIG.xpIncreasePerLevel;
+  }
+  
+  const xpForNextLevel = LEVEL_CONFIG.baseXPPerLevel + (currentLevel - 1) * LEVEL_CONFIG.xpIncreasePerLevel;
+  return totalXPNeeded + xpForNextLevel - currentXP;
+}
+
+export function getRandomUpgrade(): UpgradeType {
+  const upgradeTypes = Object.values(UpgradeType);
+  return upgradeTypes[Math.floor(Math.random() * upgradeTypes.length)];
+}
+
+export function createLevelUpPopup(type: UpgradeType): LevelUpPopup {
+  const messages = {
+    [UpgradeType.DAMAGE]: 'Damage Up!',
+    [UpgradeType.FIRE_RATE]: 'Fire Rate Up!',
+    [UpgradeType.BULLET_SIZE]: 'Bullet Size Up!',
+    [UpgradeType.SPEED]: 'Speed Up!',
+    [UpgradeType.HEALTH]: 'Health Up!'
+  };
+
+  return {
+    id: Math.random().toString(36).substr(2, 9),
+    type,
+    message: messages[type],
+    timestamp: Date.now(),
+    duration: LEVEL_CONFIG.popupDuration
+  };
+}
+
+export function applyUpgrade(player: Player, upgradeType: UpgradeType): void {
+  const amount = LEVEL_CONFIG.upgradeAmounts[upgradeType];
+  
+  // Heal 10% of max health on level up
+  const healAmount = Math.floor(player.maxHealth * 0.1);
+  player.health = Math.min(player.maxHealth, player.health + healAmount);
+  
+  // Track the level-up bonus
+  if (!player.levelUpBonuses[upgradeType]) {
+    player.levelUpBonuses[upgradeType] = 0;
+  }
+  player.levelUpBonuses[upgradeType] += amount;
+  
+  switch (upgradeType) {
+    case UpgradeType.DAMAGE:
+      player.damage += amount;
+      break;
+    case UpgradeType.FIRE_RATE:
+      player.fireRate = Math.max(50, player.fireRate - amount); // Minimum 50ms
+      break;
+    case UpgradeType.BULLET_SIZE:
+      player.bulletSize += amount;
+      break;
+    case UpgradeType.SPEED:
+      player.speed += amount;
+      break;
+    case UpgradeType.HEALTH:
+      player.maxHealth += amount;
+      player.health += amount; // Also heal the player
+      break;
+  }
+}
+
+export function applyPowerUp(player: Player, powerUpType: PowerUpType): void {
+  const config = POWERUP_CONFIGS[powerUpType];
+  const now = Date.now();
+  
+  // Apply immediate effect
+  config.effect(player);
+  
+  // Track temporary effects
+  if (config.duration > 0) {
+    player.powerUpEffects[powerUpType] = {
+      startTime: now,
+      duration: config.duration
+    };
+  }
+}
+
+export function updatePowerUpEffects(player: Player): void {
+  const now = Date.now();
+  
+  // Reset to base values + level-up bonuses
+  player.speed = player.baseSpeed + (player.levelUpBonuses[UpgradeType.SPEED] || 0);
+  player.fireRate = Math.max(50, player.baseFireRate - (player.levelUpBonuses[UpgradeType.FIRE_RATE] || 0));
+  player.damage = player.baseDamage + (player.levelUpBonuses[UpgradeType.DAMAGE] || 0);
+  
+  // Apply active power-up effects
+  Object.entries(player.powerUpEffects).forEach(([type, effect]) => {
+    const powerUpType = type as PowerUpType;
+    const elapsed = now - effect.startTime;
+    
+    if (elapsed < effect.duration) {
+      // Power-up is still active
+      const config = POWERUP_CONFIGS[powerUpType];
+      if (config.duration > 0) {
+        config.effect(player);
+      }
+    } else {
+      // Power-up has expired
+      delete player.powerUpEffects[powerUpType];
+    }
+  });
 }
