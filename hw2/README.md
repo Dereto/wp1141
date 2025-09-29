@@ -1,6 +1,8 @@
 # Prairie King: Enhanced Edition
 
-A React TypeScript recreation of the "Journey of the Prairie King" minigame from Stardew Valley, enhanced with advanced enemy AI, dynamic difficulty scaling, and a comprehensive progression system.
+本次作業靈感來源於遊戲"星露谷物語"中的一個小遊戲"Journey of the Prairie King"，在玩到破防之後決定試著重現它，不能只有我受苦。不過成品相較於原本的靈感來源有許多改動，像是用生命值而不是一被碰到就死掉，以及隨著分數升級等。活一到兩分鐘左右應該就能看到所有的敵人了，但歡迎挑戰高分，最後一次測試我的分數大約在兩萬分上下。
+
+希望大家玩得開心。
 
 ## Game Features
 
