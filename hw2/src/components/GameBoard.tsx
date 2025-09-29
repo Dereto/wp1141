@@ -63,7 +63,7 @@ const GameBoard: React.FC = () => {
         clearInterval(gameLoopRef.current);
       }
     };
-  }, [gameState.gameOver, gameState.paused]);
+  }, [gameState.gameStarted, gameState.gameOver, gameState.paused]);
 
   // Render game
   useEffect(() => {
@@ -534,7 +534,7 @@ const GameBoard: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameState.gameOver]);
+  }, [gameState.gameStarted, gameState.gameOver]);
 
   return (
     <div className="game-container">
