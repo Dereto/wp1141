@@ -488,6 +488,12 @@ const GameBoard: React.FC = () => {
   // Event handlers
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent default behavior for game keys to avoid scrolling
+      const gameKeys = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Space', 'r', 'R'];
+      if (gameKeys.includes(e.key)) {
+        e.preventDefault();
+      }
+      
       setGameState(prevState => ({
         ...prevState,
         keys: { ...prevState.keys, [e.key]: true }
@@ -521,6 +527,12 @@ const GameBoard: React.FC = () => {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      // Prevent default behavior for game keys to avoid scrolling
+      const gameKeys = ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Space', 'r', 'R'];
+      if (gameKeys.includes(e.key)) {
+        e.preventDefault();
+      }
+      
       setGameState(prevState => ({
         ...prevState,
         keys: { ...prevState.keys, [e.key]: false }

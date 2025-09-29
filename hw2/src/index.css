@@ -5,6 +5,8 @@ body {
   font-family: 'Courier New', monospace;
   min-height: 100vh;
   color: #ecf0f1;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #root {
