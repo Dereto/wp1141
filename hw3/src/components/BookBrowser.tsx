@@ -24,17 +24,19 @@ import {
   FilterList as FilterIcon,
   Info as InfoIcon,
   Add as AddIcon,
+  Remove as RemoveIcon,
 } from '@mui/icons-material';
 import { Book, Account, ReadingListBook } from '../types';
 
 interface BookBrowserProps {
   books: Book[];
   onAddToReadingList: (book: Book) => void;
+  onRemoveFromReadingList: (bookId: string) => void;
   currentUser: Account;
   readingList: ReadingListBook[];
 }
 
-const BookBrowser: React.FC<BookBrowserProps> = ({ books, onAddToReadingList, currentUser, readingList }) => {
+const BookBrowser: React.FC<BookBrowserProps> = ({ books, onAddToReadingList, onRemoveFromReadingList, currentUser, readingList }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -83,6 +85,10 @@ const BookBrowser: React.FC<BookBrowserProps> = ({ books, onAddToReadingList, cu
     if (book.status === 'available') {
       onAddToReadingList(book);
     }
+  };
+
+  const handleRemoveFromReadingList = (bookId: string) => {
+    onRemoveFromReadingList(bookId);
   };
 
   const isBookInReadingList = (bookId: string) => {
@@ -251,13 +257,16 @@ const BookBrowser: React.FC<BookBrowserProps> = ({ books, onAddToReadingList, cu
                     <Button
                       size="small"
                       variant={isBookInReadingList(book.id) ? "outlined" : "contained"}
-                      startIcon={<AddIcon />}
-                      onClick={() => handleAddToReadingList(book)}
-                      disabled={book.status !== 'available' || isBookInReadingList(book.id)}
+                      startIcon={isBookInReadingList(book.id) ? <RemoveIcon /> : <AddIcon />}
+                      onClick={() => isBookInReadingList(book.id) 
+                        ? handleRemoveFromReadingList(book.id) 
+                        : handleAddToReadingList(book)
+                      }
+                      disabled={book.status !== 'available'}
                       color={isBookInReadingList(book.id) ? "secondary" : "primary"}
                     >
                       {isBookInReadingList(book.id) 
-                        ? 'Already Reserved' 
+                        ? 'Remove from List' 
                         : book.status === 'available' 
                           ? 'Reserve Book' 
                           : 'Unavailable'

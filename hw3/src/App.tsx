@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { AppBar, Toolbar, Typography, Container, Box, Fab, Badge } from '@mui/material';
+import { AppBar, Toolbar, Typography, Container, Box, Fab, Badge, Button } from '@mui/material';
 import { Book, Account, ReadingListBook, Reservation } from './types';
 import { loadBooks, loadAccounts } from './utils/dataLoader';
 import LoginForm from './components/LoginForm';
@@ -23,10 +23,33 @@ const theme = createTheme({
 });
 
 function App() {
+  // Helper function to create guest account
+  const createGuestAccount = (): Account => ({
+    id: 'guest',
+    username: 'guest',
+    password: 'guest',
+    email: 'guest@library.com',
+    first_name: 'Guest',
+    last_name: 'User',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    membership_type: 'Standard',
+    join_date: new Date().toISOString().split('T')[0],
+    expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+    status: 'active',
+    max_books_allowed: 2,
+    current_books_borrowed: 0,
+    fines_owed: 0,
+    last_login: new Date().toISOString().split('T')[0]
+  });
+
   const [currentView, setCurrentView] = useState<'browse' | 'reading-list' | 'reservation'>('browse');
   const [books, setBooks] = useState<Book[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [currentUser, setCurrentUser] = useState<Account | null>(null);
+  const [currentUser, setCurrentUser] = useState<Account | null>(() => createGuestAccount());
   const [readingList, setReadingList] = useState<ReadingListBook[]>([]);
   const [, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +78,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    // Return to guest account instead of null
+    setCurrentUser(createGuestAccount());
     setReadingList([]);
     setReservations([]);
     setCurrentView('browse');
@@ -106,7 +130,7 @@ function App() {
     );
   }
 
-  // Show login form if no user is logged in
+  // Show login form if user clicked login button (currentUser is null)
   if (!currentUser) {
     return (
       <ThemeProvider theme={theme}>
@@ -125,7 +149,19 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               📚 Digital Library Service
             </Typography>
-            <UserProfile user={currentUser} onLogout={handleLogout} />
+            {currentUser?.id === 'guest' ? (
+              <Button 
+                color="inherit" 
+                onClick={() => {
+                  // Show login form by temporarily setting currentUser to null
+                  setCurrentUser(null);
+                }}
+              >
+                Login
+              </Button>
+            ) : (
+              <UserProfile user={currentUser} onLogout={handleLogout} />
+            )}
           </Toolbar>
         </AppBar>
         
@@ -134,6 +170,7 @@ function App() {
             <BookBrowser 
               books={books}
               onAddToReadingList={addToReadingList}
+              onRemoveFromReadingList={removeFromReadingList}
               currentUser={currentUser}
               readingList={readingList}
             />
