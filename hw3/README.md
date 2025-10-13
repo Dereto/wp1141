@@ -4,18 +4,18 @@ A modern Single-Page Application (SPA) built with React TypeScript that allows u
 
 ## 🎯 Features
 
-### Three-Stage User Journey
+### Three-Stage User Journey (Implicit)
 
-1. **📖 Browse Books** - Explore the library collection with advanced search and filtering
-2. **📋 Build Reading List** - Select and organize books with personal notes and reading dates
-3. **📝 Submit Reservations** - Complete the reservation process with contact information
+1. **📖 Browse Books** - Explore the library collection with search and filters
+2. **📋 Select Books** - Add/remove selections directly while browsing
+3. **📝 Submit Reservations** - One consolidated flow (select → contact → review → success)
 
 ### Key Functionality
 
 - **Advanced Search & Filtering**: Search by title, author, or description with genre and status filters
 - **Interactive Book Cards**: Hover effects, detailed information dialogs, and status indicators
-- **Reading List Management**: Add/remove books, set reading dates, and add personal notes
-- **Reservation System**: Multi-step form with contact information and confirmation
+- **Selection Management**: Add/remove books directly from the browse view
+- **Reservation System**: Consolidated multi-step form (selection/contact/review/success)
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Real-time Data**: Automatically loads from CSV files in the public/data directory
 
@@ -33,9 +33,8 @@ A modern Single-Page Application (SPA) built with React TypeScript that allows u
 hw3/
 ├── src/
 │   ├── components/          # React components
-│   │   ├── BookBrowser.tsx      # Stage 1: Browse books
-│   │   ├── ReadingList.tsx      # Stage 2: Manage reading list
-│   │   └── ReservationSubmission.tsx # Stage 3: Submit reservations
+│   │   ├── BookBrowser.tsx      # Browse books and add/remove selections
+│   │   └── ReservationSubmission.tsx # Consolidated selection/contact/review/success
 │   ├── types/               # TypeScript interfaces
 │   │   └── index.ts
 │   ├── utils/               # Utility functions
@@ -86,13 +85,14 @@ Contains comprehensive book information including:
 - Basic details (title, author, ISBN, genre, publication year)
 - Library status (available, borrowed, reserved, out_of_order)
 - Lending information (borrower, dates, reservations)
-- Physical details (condition, location, pages, price)
+- Physical details (condition, location, pages)
 
 ### Accounts Dataset (accounts.csv)
 Contains user account information including:
 - Personal details (name, contact information)
 - Membership information (type, dates, status)
 - Library activity (borrowed books, fines, limits)
+ - Authentication fields (username, password)
 
 ## 🎨 UI/UX Design Principles
 
@@ -102,25 +102,24 @@ Contains user account information including:
 - **Detailed View**: Modal dialogs for comprehensive book information
 - **Status Awareness**: Clear visual indicators for book availability
 
-### Stage 2: Reading List
-- **Summary Dashboard**: Overview of selected books with statistics
-- **Editable Items**: Modify reading dates and add personal notes
-- **Flexible Management**: Easy add/remove functionality
-- **Progress Tracking**: Visual feedback on reading list status
+### Stage 2: Select Books (Implicit)
+- **Direct Add/Remove**: Toggle selection on each book from the browse grid
+- **Live Count**: Floating action button shows selection count
+- **No Separate Page**: Selection happens implicitly before submission
 
 ### Stage 3: Reservation Submission
-- **Multi-step Process**: Clear progression through contact info and confirmation
+- **Multi-step Process**: Selection → Contact Info → Review → Success
 - **Form Validation**: Real-time validation with helpful error messages
 - **Review System**: Comprehensive review before final submission
-- **Confirmation**: Clear success state with next steps
+- **Success Page**: Confirmation screen with “Back to Browsing”
 
 ## 🔄 Data Flow
 
 1. **Data Loading**: CSV files are parsed and loaded into React state
 2. **Browse Stage**: Books are filtered and displayed based on user input
-3. **Selection Stage**: Selected books are added to reading list state
-4. **Submission Stage**: Reading list is converted to reservations
-5. **Confirmation**: Final state shows successful submission
+3. **Selection Stage**: Selections are tracked in app state
+4. **Submission Stage**: Selections are converted to reservations
+5. **Success**: Confirmation screen; returning clears selections
 
 ## 🎯 Key Features Explained
 
@@ -130,18 +129,34 @@ Contains user account information including:
 - Status-based filtering (available, borrowed, reserved, out_of_order)
 - Clear filter reset functionality
 
-### Reading List Management
-- Add books with one click (only available books)
-- Edit reading dates and personal notes
-- Remove books from the list
-- View comprehensive statistics (total pages, reading time, value)
+### Selection Management
+- Add/remove with one click (only available books)
+- Optional notes and reading dates per selected item
+- View selection summary and total pages in review
 
 ### Reservation System
 - Multi-step form with validation
 - Contact information collection
 - Terms and conditions agreement
 - Comprehensive review before submission
-- Success confirmation with next steps
+- Success confirmation with next steps and “Back to Browsing”
+
+### Accounts & Login
+- App starts as a guest by default (limited to 2 selections, no auto-fill)
+- Optional login from the app bar to unlock account limits and auto-filled contact info
+- Demo accounts provided in `public/data/accounts.csv` (username/password)
+
+### Data Hot Reload
+- Editing CSVs under `public/data` will refresh data without code changes
+
+## 🧭 Project Overview (to be completed by author)
+
+> Replace this placeholder with a high-level description of your project vision, audience, and key UX decisions. Suggested outline:
+> - Problem statement and goals
+> - Target users and use cases
+> - Why a library reservation flow (and rationale for implicit stages)
+> - How the datasets were modeled and why
+> - Notable UX choices and trade-offs
 
 ## 🚀 Future Enhancements
 
