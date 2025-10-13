@@ -7,17 +7,94 @@ import { loadBooks, loadAccounts } from './utils/dataLoader';
 import LoginForm from './components/LoginForm';
 import UserProfile from './components/UserProfile';
 import BookBrowser from './components/BookBrowser';
-import ReadingList from './components/ReadingList';
+// Removed ReadingList to consolidate into ReservationSubmission flow
 import ReservationSubmission from './components/ReservationSubmission';
 import { BookmarkBorder as BookmarkIcon } from '@mui/icons-material';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#2c5530', // Deep forest green - academic, trustworthy
+      light: '#4a7c59',
+      dark: '#1a3a1e',
+      contrastText: '#ffffff',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#8b4513', // Saddle brown - warm, book-like
+      light: '#a0522d',
+      dark: '#654321',
+      contrastText: '#ffffff',
+    },
+    background: {
+      default: '#f8f9fa', // Light gray - clean, readable
+      paper: '#ffffff',
+    },
+    text: {
+      primary: '#2c3e50', // Dark blue-gray - professional
+      secondary: '#5a6c7d',
+    },
+  },
+  typography: {
+    fontFamily: '"Georgia", "Times New Roman", serif',
+    h1: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 600,
+    },
+    h2: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 600,
+    },
+    h3: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 500,
+    },
+    h4: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 500,
+    },
+    h5: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 500,
+    },
+    h6: {
+      fontFamily: '"Georgia", "Times New Roman", serif',
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#2c5530',
+          boxShadow: '0 2px 4px rgba(44, 85, 48, 0.1)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 2px 8px rgba(44, 85, 48, 0.1)',
+          border: '1px solid #e8f5e8',
+          '&:hover': {
+            boxShadow: '0 4px 12px rgba(44, 85, 48, 0.15)',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 8,
+          fontWeight: 500,
+        },
+        contained: {
+          boxShadow: '0 2px 4px rgba(44, 85, 48, 0.2)',
+          '&:hover': {
+            boxShadow: '0 4px 8px rgba(44, 85, 48, 0.3)',
+          },
+        },
+      },
     },
   },
 });
@@ -46,7 +123,7 @@ function App() {
     last_login: new Date().toISOString().split('T')[0]
   });
 
-  const [currentView, setCurrentView] = useState<'browse' | 'reading-list' | 'reservation'>('browse');
+  const [currentView, setCurrentView] = useState<'browse' | 'reservation'>('browse');
   const [books, setBooks] = useState<Book[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [currentUser, setCurrentUser] = useState<Account | null>(() => createGuestAccount());
@@ -107,16 +184,16 @@ function App() {
     setReadingList(prev => prev.filter(book => book.id !== bookId));
   };
 
-  const updateReadingListBook = (bookId: string, updates: Partial<ReadingListBook>) => {
-    setReadingList(prev => prev.map(book => 
-      book.id === bookId ? { ...book, ...updates } : book
-    ));
-  };
+  // Note editing per-book in a dedicated page has been removed with consolidation
 
   const submitReservations = (submittedReservations: Reservation[]) => {
     setReservations(submittedReservations);
-    setCurrentView('browse');
+    // Do not navigate yet; wait for success page action
+  };
+
+  const handleSuccessDone = () => {
     setReadingList([]);
+    setCurrentView('browse');
   };
 
   if (loading) {
@@ -124,7 +201,12 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography variant="h4">Loading Library Data...</Typography>
+          <Typography variant="h4" sx={{ color: 'primary.main', fontWeight: 500 }}>
+            Loading Library Catalog...
+          </Typography>
+          <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
+            Please wait while we prepare our collection for you.
+          </Typography>
         </Container>
       </ThemeProvider>
     );
@@ -146,8 +228,8 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              📚 Digital Library Service
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+              📖 Springfield Public Library
             </Typography>
             {currentUser?.id === 'guest' ? (
               <Button 
@@ -176,22 +258,15 @@ function App() {
             />
           )}
 
-          {currentView === 'reading-list' && (
-            <ReadingList 
-              readingList={readingList}
-              onRemoveFromReadingList={removeFromReadingList}
-              onUpdateReadingListBook={updateReadingListBook}
-              onBack={() => setCurrentView('browse')}
-              onNext={() => setCurrentView('reservation')}
-            />
-          )}
+          {/* ReadingList page removed; users go directly to reservation flow */}
 
           {currentView === 'reservation' && (
             <ReservationSubmission 
               readingList={readingList}
               onSubmitReservations={submitReservations}
-              onBack={() => setCurrentView('reading-list')}
+              onBack={() => setCurrentView('browse')}
               currentUser={currentUser}
+              onSuccessDone={handleSuccessDone}
             />
           )}
 
@@ -205,7 +280,7 @@ function App() {
                 bottom: 16,
                 right: 16,
               }}
-              onClick={() => setCurrentView('reading-list')}
+              onClick={() => setCurrentView('reservation')}
             >
               <Badge badgeContent={readingList.length} color="secondary">
                 <BookmarkIcon />

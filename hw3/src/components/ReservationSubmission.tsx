@@ -31,15 +31,17 @@ interface ReservationSubmissionProps {
   onSubmitReservations: (reservations: Reservation[]) => void;
   onBack: () => void;
   currentUser?: Account;
+  onSuccessDone?: () => void; // optional callback when leaving success screen
 }
 
 const ReservationSubmission: React.FC<ReservationSubmissionProps> = ({
   readingList,
   onSubmitReservations,
   onBack,
-  currentUser
+  currentUser,
+  onSuccessDone
 }) => {
-  const [currentStep, setCurrentStep] = useState<'select' | 'contact' | 'review'>('select');
+  const [currentStep, setCurrentStep] = useState<'select' | 'contact' | 'review' | 'success'>('select');
   const [selectedBooks, setSelectedBooks] = useState<string[]>(readingList.map(book => book.id));
   const [userInfo, setUserInfo] = useState({
     firstName: (currentUser && currentUser.id !== 'guest') ? currentUser.first_name : '',
@@ -83,6 +85,8 @@ const ReservationSubmission: React.FC<ReservationSubmissionProps> = ({
     }));
 
     onSubmitReservations(reservations);
+    // Move to success page instead of navigating away immediately
+    setCurrentStep('success');
   };
 
   const selectedBooksData = readingList.filter(book => selectedBooks.includes(book.id));
@@ -154,9 +158,9 @@ const ReservationSubmission: React.FC<ReservationSubmissionProps> = ({
               >
                 Continue to Contact Info
               </Button>
-              <Button onClick={onBack} sx={{ ml: 1 }}>
-                Back to Reading List
-              </Button>
+            <Button onClick={onBack} sx={{ ml: 1 }}>
+              Back to Browsing
+            </Button>
             </Box>
         </Box>
       )}
@@ -349,6 +353,30 @@ const ReservationSubmission: React.FC<ReservationSubmissionProps> = ({
                 Back
               </Button>
             </Box>
+        </Box>
+      )}
+
+      {/* Step 4: Success */}
+      {currentStep === 'success' && (
+        <Box sx={{ textAlign: 'center' }}>
+          <Paper sx={{ p: 4, mb: 3 }}>
+            <CheckCircleIcon color="primary" sx={{ fontSize: 64, mb: 2 }} />
+            <Typography variant="h5" gutterBottom>
+              Reservation Request Sent
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Thank you! Your reservation request has been submitted. We will notify you by email when your books are ready for pickup.
+            </Typography>
+          </Paper>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              if (onSuccessDone) onSuccessDone();
+            }}
+          >
+            Back to Browsing
+          </Button>
         </Box>
       )}
     </Box>
