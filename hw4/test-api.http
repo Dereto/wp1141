@@ -1,0 +1,52 @@
+### Test Commute Map API
+
+### Health Check
+GET http://localhost:3000/health
+
+### Register a new user
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Get user profile (replace TOKEN with actual token from login response)
+GET http://localhost:3000/auth/profile
+Authorization: Bearer TOKEN
+
+### Create a commute route (replace TOKEN with actual token)
+POST http://localhost:3000/api/commute
+Authorization: Bearer TOKEN
+Content-Type: application/json
+
+{
+  "name": "上班路線",
+  "description": "從家到公司的路線",
+  "startAddress": "台北車站",
+  "endAddress": "信義區",
+  "transportMode": "driving"
+}
+
+### Get all commute routes (replace TOKEN with actual token)
+GET http://localhost:3000/api/commute
+Authorization: Bearer TOKEN
+
+### Search places (replace TOKEN with actual token)
+GET http://localhost:3000/api/commute/search/places?query=台北101&lat=25.0330&lng=121.5654
+Authorization: Bearer TOKEN
+
+### Get directions (replace TOKEN with actual token)
+GET http://localhost:3000/api/commute/directions?origin=台北車站&destination=信義區&mode=driving
+Authorization: Bearer TOKEN
