@@ -18,12 +18,14 @@ import {
   Chip,
   Alert,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useMap } from '../contexts/MapContext';
@@ -44,6 +46,10 @@ const Dashboard: React.FC = () => {
     endAddress: '',
     transportMode: 'driving',
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchField, setSearchField] = useState<'start' | 'end' | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
 
   // Load routes on component mount
@@ -285,6 +291,81 @@ const Dashboard: React.FC = () => {
       (window as any).directionsRenderer.setMap(null);
       (window as any).directionsRenderer = null;
     }
+    
+    // Clear search markers
+    if ((window as any).searchMarkers) {
+      (window as any).searchMarkers.forEach((marker: any) => marker.setMap(null));
+      (window as any).searchMarkers = [];
+    }
+  };
+
+  const searchPlaces = async (query: string) => {
+    if (!query.trim() || !map) return;
+    
+    setIsSearching(true);
+    try {
+      const results = await commuteService.searchPlaces(query);
+      setSearchResults(results || []);
+      
+      // Clear existing search markers
+      if ((window as any).searchMarkers) {
+        (window as any).searchMarkers.forEach((marker: any) => marker.setMap(null));
+      }
+      
+      // Add markers for search results
+      const markers: any[] = [];
+      results?.forEach((place: any) => {
+        const marker = new (window as any).google.maps.Marker({
+          position: { lat: place.geometry.location.lat, lng: place.geometry.location.lng },
+          map: map,
+          title: place.name,
+          icon: {
+            url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+          }
+        });
+        
+        // Add click listener to select place
+        marker.addListener('click', () => {
+          selectPlace(place);
+        });
+        
+        markers.push(marker);
+      });
+      
+      (window as any).searchMarkers = markers;
+      
+      // Fit map to show all results
+      if (results && results.length > 0) {
+        const bounds = new (window as any).google.maps.LatLngBounds();
+        results.forEach((place: any) => {
+          bounds.extend({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
+        });
+        map.fitBounds(bounds);
+      }
+    } catch (error) {
+      console.error('Error searching places:', error);
+      setError('搜尋地點時發生錯誤');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const selectPlace = (place: any) => {
+    if (searchField === 'start') {
+      setFormData(prev => ({ ...prev, startAddress: place.formatted_address }));
+    } else if (searchField === 'end') {
+      setFormData(prev => ({ ...prev, endAddress: place.formatted_address }));
+    }
+    
+    // Clear search results and markers
+    setSearchResults([]);
+    setSearchQuery('');
+    setSearchField(null);
+    
+    if ((window as any).searchMarkers) {
+      (window as any).searchMarkers.forEach((marker: any) => marker.setMap(null));
+      (window as any).searchMarkers = [];
+    }
   };
 
   const formatDuration = (seconds: number | undefined | null) => {
@@ -489,24 +570,165 @@ const Dashboard: React.FC = () => {
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             sx={{ mb: 2 }}
           />
-          <TextField
-            margin="dense"
-            label="起點地址"
-            fullWidth
-            variant="outlined"
-            value={formData.startAddress}
-            onChange={(e) => setFormData({ ...formData, startAddress: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="終點地址"
-            fullWidth
-            variant="outlined"
-            value={formData.endAddress}
-            onChange={(e) => setFormData({ ...formData, endAddress: e.target.value })}
-            sx={{ mb: 2 }}
-          />
+          {/* Start Address with Search */}
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              margin="dense"
+              label="起點地址"
+              fullWidth
+              variant="outlined"
+              value={formData.startAddress}
+              onChange={(e) => setFormData({ ...formData, startAddress: e.target.value })}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        setSearchField('start');
+                        setSearchQuery(formData.startAddress);
+                        if (formData.startAddress.trim()) {
+                          searchPlaces(formData.startAddress);
+                        }
+                      }}
+                      edge="end"
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {searchField === 'start' && (
+              <Box sx={{ mt: 1 }}>
+                <TextField
+                  size="small"
+                  placeholder="搜尋地點..."
+                  fullWidth
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      searchPlaces(searchQuery);
+                    }
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => searchPlaces(searchQuery)}
+                          disabled={isSearching}
+                          edge="end"
+                        >
+                          {isSearching ? <CircularProgress size={20} /> : <SearchIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                {searchResults.length > 0 && (
+                  <List dense sx={{ maxHeight: 200, overflow: 'auto', border: 1, borderColor: 'divider', mt: 1 }}>
+                    {searchResults.map((place, index) => (
+                      <ListItem
+                        key={index}
+                        component="div"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, startAddress: place.formatted_address }));
+                          setSearchResults([]);
+                          setSearchField(null);
+                        }}
+                        sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
+                      >
+                        <ListItemText
+                          primary={place.name}
+                          secondary={place.formatted_address}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Box>
+            )}
+          </Box>
+
+          {/* End Address with Search */}
+          <Box sx={{ mb: 2 }}>
+            <TextField
+              margin="dense"
+              label="終點地址"
+              fullWidth
+              variant="outlined"
+              value={formData.endAddress}
+              onChange={(e) => setFormData({ ...formData, endAddress: e.target.value })}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        setSearchField('end');
+                        setSearchQuery(formData.endAddress);
+                        if (formData.endAddress.trim()) {
+                          searchPlaces(formData.endAddress);
+                        }
+                      }}
+                      edge="end"
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            {searchField === 'end' && (
+              <Box sx={{ mt: 1 }}>
+                <TextField
+                  size="small"
+                  placeholder="搜尋地點..."
+                  fullWidth
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      searchPlaces(searchQuery);
+                    }
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => searchPlaces(searchQuery)}
+                          disabled={isSearching}
+                          edge="end"
+                        >
+                          {isSearching ? <CircularProgress size={20} /> : <SearchIcon />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                {searchResults.length > 0 && (
+                  <List dense sx={{ maxHeight: 200, overflow: 'auto', border: 1, borderColor: 'divider', mt: 1 }}>
+                    {searchResults.map((place, index) => (
+                      <ListItem
+                        key={index}
+                        component="div"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, endAddress: place.formatted_address }));
+                          setSearchResults([]);
+                          setSearchField(null);
+                        }}
+                        sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
+                      >
+                        <ListItemText
+                          primary={place.name}
+                          secondary={place.formatted_address}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Box>
+            )}
+          </Box>
           <TextField
             margin="dense"
             label="交通方式"
