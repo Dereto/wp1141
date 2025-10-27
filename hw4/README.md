@@ -116,8 +116,13 @@ cd wp1141/hw4
    - 啟用 API：Maps JavaScript API
 
 2. **Server Key** (後端用)：
-   - 限制類型：IP 位址（本地開發可暫時無限制）
+   - 限制類型：無限制（⚠️ 僅用於開發環境）
    - 啟用 APIs：Geocoding API, Places API, Directions API
+
+⚠️ **重要安全警告**：Server Key 未設定 IP 限制，存在以下風險：
+- 🚨 **API 濫用風險**：Key 洩露可能導致 API 配額被惡意消耗
+- 💰 **費用風險**：可能產生意外的 Google Maps API 使用費用
+- 🔒 **安全建議**：生產環境請在 Google Cloud Console 中設定 IP 限制
 
 ### 3. 設定環境變數
 
@@ -296,11 +301,22 @@ CREATE TABLE commute_routes (
 - ✅ SQL 注入防護（使用參數化查詢）
 
 ### 安全風險說明
-⚠️ **重要提醒**：本專案為學習用途，後端 Server Key 未設定 IP 限制，僅適用於本地開發環境。在生產環境中，請務必：
-- 設定適當的 IP 限制
-- 使用環境變數管理敏感資訊
-- 實作更嚴格的輸入驗證
-- 定期更新依賴套件
+⚠️ **重要安全警告**：本專案為學習用途，存在以下安全風險，**僅適用於本地開發環境**：
+
+#### 🚨 **Google Maps Server Key 安全風險**
+- **未設定 IP 限制**：後端使用的 `GOOGLE_MAPS_SERVER_KEY` 未限制特定 IP 位址
+- **潛在濫用風險**：如果 Server Key 洩露，可能被惡意使用導致 API 配額耗盡
+- **費用風險**：Google Maps API 有使用量限制和費用，未限制的 Key 可能產生意外費用
+
+#### 🛡️ **生產環境安全建議**
+在生產環境中，請務必：
+- ✅ **設定 IP 限制**：在 Google Cloud Console 中限制 Server Key 只能從特定 IP 使用
+- ✅ **使用環境變數**：將所有敏感資訊存放在環境變數中
+- ✅ **實作更嚴格的輸入驗證**：加強 API 輸入驗證和錯誤處理
+- ✅ **定期更新依賴套件**：保持所有套件為最新版本
+- ✅ **監控 API 使用量**：設定 Google Cloud 使用量警報
+- ✅ **使用 HTTPS**：確保所有通訊都經過加密
+- ✅ **實作 Rate Limiting**：限制 API 請求頻率防止濫用
 
 ## 已知問題與未來改進
 
