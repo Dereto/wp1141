@@ -102,3 +102,6 @@ spec/
 .env.local
 .env*.local
 
+
+.vercel
+.env*.local

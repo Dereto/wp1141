@@ -209,45 +209,42 @@ This guide will help you deploy X-Clone directly to Vercel and set up all requir
 
 ## Step 6: Deploy and Run Database Migrations
 
-1. **Trigger a New Deployment**:
-   - Go to **Deployments** tab
-   - Click the three dots on latest deployment > **Redeploy**
-   - Or push a new commit to trigger deployment
+**⚠️ IMPORTANT: You MUST run database migrations before the app will work!**
 
-2. **Run Database Migrations**:
-   - After deployment completes, go to your project
-   - Click on the deployment
-   - Open **Functions** tab to see logs
-   - Or use Vercel CLI (optional):
-     ```bash
-     npm i -g vercel
-     vercel login
-     vercel link
-     vercel env pull .env.local
-     npx prisma migrate deploy
-     ```
-
-3. **Alternative: Use Vercel CLI for Database Setup**:
+1. **Install Vercel CLI** (if not already installed):
    ```bash
-   # Install Vercel CLI
    npm i -g vercel
-   
-   # Login
+   ```
+
+2. **Login and Link Project**:
+   ```bash
    vercel login
-   
-   # Link to your project
    cd hw5
    vercel link
-   
-   # Pull environment variables
+   ```
+   - Select your Vercel project when prompted
+
+3. **Pull Environment Variables**:
+   ```bash
    vercel env pull .env.local
-   
-   # Generate Prisma Client
-   npm run db:generate
-   
-   # Push database schema
+   ```
+   This downloads your Vercel environment variables locally (including `DATABASE_URL`)
+
+4. **Push Database Schema**:
+   ```bash
    npm run db:push
    ```
+   This creates all the tables in your Vercel Postgres database.
+
+5. **Verify Success**:
+   You should see: `The database is now in sync with your Prisma schema.`
+
+6. **Trigger a New Deployment** (optional):
+   - Go to **Deployments** tab in Vercel
+   - Click **Redeploy** on the latest deployment
+   - Or push a new commit to trigger deployment
+
+**Note**: Without running `db:push`, you'll get errors like "table does not exist" when trying to sign in.
 
 ## Step 7: Update OAuth Redirect URIs (If Needed)
 
