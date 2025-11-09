@@ -131,7 +131,7 @@ export default function CommentList({ postId, commentId, onCommentClick, showRep
     )
     formatted = formatted.replace(
       /#(\w+)/g,
-      '<a href="/hashtag/$1" class="text-blue-500 hover:underline">#$1</a>`
+      '<a href="/hashtag/$1" class="text-blue-500 hover:underline">#$1</a>'
     )
     return formatted
   }
