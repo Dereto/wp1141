@@ -14,34 +14,34 @@ export default withAuth(
 
     // If user is authenticated, check if they have userID
     if (token) {
-      // For database sessions, token contains user info
-      // Check if userID is already in token (from session callback)
-      const userID = (token as any).userID
-      
-      if (!userID) {
-        // userID not in token, fetch from database
-        const userId = (token as any).id || (token as any).sub
+      try {
+        // For database sessions, the token should have user ID
+        // Try different possible fields where user ID might be stored
+        const userId = (token as any).id || (token as any).sub || (token as any).userId
+        
         if (userId) {
-          try {
-            const user = await prisma.user.findUnique({
-              where: { id: userId },
-              select: { userID: true },
-            })
+          // Fetch userID from database
+          const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { userID: true },
+          })
 
-            if (!user?.userID) {
-              // User is authenticated but hasn't registered userID yet
-              return NextResponse.redirect(new URL("/auth/register", req.url))
+          if (!user?.userID) {
+            // User is authenticated but hasn't registered userID yet
+            console.log("Middleware: User", userId, "needs registration")
+            return NextResponse.redirect(new URL("/auth/register", req.url))
+          } else {
+            // User has userID, if on register page, redirect to home
+            if (path === "/auth/register") {
+              return NextResponse.redirect(new URL("/home", req.url))
             }
-          } catch (error) {
-            // If database query fails, allow through (will be handled by page)
-            console.error("Middleware database error:", error)
           }
+        } else {
+          console.log("Middleware: Token exists but no user ID found", Object.keys(token))
         }
-      } else {
-        // User has userID, if on register page, redirect to home
-        if (path === "/auth/register") {
-          return NextResponse.redirect(new URL("/home", req.url))
-        }
+      } catch (error) {
+        // If database query fails, allow through (will be handled by page)
+        console.error("Middleware database error:", error)
       }
     }
 

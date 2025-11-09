@@ -20,18 +20,31 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id
-        const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { userID: true },
-        })
-        if (dbUser && dbUser.userID) {
-          session.user.userID = dbUser.userID as string
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { userID: true },
+          })
+          if (dbUser && dbUser.userID) {
+            session.user.userID = dbUser.userID as string
+          } else {
+            console.log("Session: User", user.id, "does not have userID yet")
+          }
+        } catch (error) {
+          console.error("Session callback error:", error)
         }
       }
       return session
     },
     async signIn({ user, account, profile }) {
-      if (!user.email) return false
+      if (!user.email) {
+        console.error("SignIn: No email provided")
+        return false
+      }
+      
+      // PrismaAdapter will handle creating the user and account
+      // We just need to return true to allow the sign-in
+      console.log("SignIn: Allowing sign-in for", user.email)
       return true
     },
     async redirect({ url, baseUrl }) {
