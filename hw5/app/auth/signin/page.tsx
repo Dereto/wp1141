@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation"
 
 function SignInContent() {
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/home"
+  const callbackUrl = searchParams.get("callbackUrl") || "/"
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">

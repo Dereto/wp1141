@@ -2,15 +2,17 @@ import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const token = req.nextauth.token
     const path = req.nextUrl.pathname
 
+    // Allow auth routes to proceed
+    if (path.startsWith("/auth")) {
+      return NextResponse.next()
+    }
+
     // If user doesn't have userID and trying to access protected routes
-    if (token && !(token as any).userID && path !== "/auth/register") {
-      if (path.startsWith("/auth")) {
-        return NextResponse.next()
-      }
+    if (token && !(token as any).userID) {
       return NextResponse.redirect(new URL("/auth/register", req.url))
     }
 

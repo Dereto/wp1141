@@ -12,10 +12,20 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!session?.user) {
+    if (session === null) {
+      // Session is loaded but user is not authenticated
       router.push("/auth/signin")
     }
   }, [session, router])
+
+  // Show loading while session is being fetched
+  if (session === undefined) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    )
+  }
 
   if (!session?.user) {
     return null

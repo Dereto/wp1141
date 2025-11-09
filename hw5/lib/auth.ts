@@ -32,22 +32,23 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user, account, profile }) {
       if (!user.email) return false
-      
-      // Check if user exists
-      const existingUser = await prisma.user.findFirst({
-        where: {
-          accounts: {
-            some: {
-              provider: account?.provider,
-              providerAccountId: account?.providerAccountId,
-            },
-          },
-        },
-      })
-
-      // If user doesn't exist, they need to register with userID
-      // This will be handled in the registration flow
       return true
+    },
+    async redirect({ url, baseUrl }) {
+      // After OAuth, always redirect to root to let middleware handle routing
+      // This ensures session is fully loaded before checking userID
+      if (url.startsWith("/")) {
+        // If it's an auth route, allow it
+        if (url.startsWith("/auth")) {
+          return `${baseUrl}${url}`
+        }
+        // Otherwise redirect to root, which will check session and redirect appropriately
+        return `${baseUrl}/`
+      }
+      // Allow same origin URLs
+      if (new URL(url).origin === baseUrl) return url
+      // Default to root
+      return `${baseUrl}/`
     },
   },
   pages: {
