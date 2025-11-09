@@ -1,4 +1,4 @@
-# X-Clone - Twitter/X Clone Social Media Platform
+# X-Clone - X Clone Social Media Platform
 
 A full-stack social media platform built with Next.js, featuring real-time interactions, OAuth authentication, and a Twitter/X-like user experience.
 
