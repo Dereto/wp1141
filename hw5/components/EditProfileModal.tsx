@@ -15,7 +15,7 @@ interface User {
 interface EditProfileModalProps {
   user: User
   onClose: () => void
-  onUpdate: (user: User) => void
+  onUpdate: (user: Partial<User>) => void
 }
 
 export default function EditProfileModal({ user, onClose, onUpdate }: EditProfileModalProps) {
@@ -38,7 +38,7 @@ export default function EditProfileModal({ user, onClose, onUpdate }: EditProfil
       if (!res.ok) throw new Error("Failed to update profile")
 
       const data = await res.json()
-      onUpdate({ ...user, ...data.user })
+      onUpdate(data.user)
       await update()
       onClose()
     } catch (error) {

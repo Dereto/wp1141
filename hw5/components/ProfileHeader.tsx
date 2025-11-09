@@ -38,8 +38,8 @@ export default function ProfileHeader({
   const [showEditModal, setShowEditModal] = useState(false)
   const [userData, setUserData] = useState(user)
 
-  const handleProfileUpdate = (updatedUser: User) => {
-    setUserData(updatedUser)
+  const handleProfileUpdate = (updatedUser: Partial<User>) => {
+    setUserData((prev) => ({ ...prev, ...updatedUser }))
   }
 
   return (
