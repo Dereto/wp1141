@@ -24,8 +24,8 @@ export const authOptions: NextAuthOptions = {
           where: { id: user.id },
           select: { userID: true },
         })
-        if (dbUser) {
-          session.user.userID = dbUser.userID
+        if (dbUser && dbUser.userID) {
+          session.user.userID = dbUser.userID as string
         }
       }
       return session

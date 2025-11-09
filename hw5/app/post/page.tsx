@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import MainLayout from "@/components/MainLayout"
@@ -11,8 +11,13 @@ export default function PostPage() {
   const router = useRouter()
   const [showModal, setShowModal] = useState(true)
 
+  useEffect(() => {
+    if (!session) {
+      router.push("/auth/signin")
+    }
+  }, [session, router])
+
   if (!session) {
-    router.push("/auth/signin")
     return null
   }
 

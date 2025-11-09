@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
@@ -11,8 +11,13 @@ export default function RegisterPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (!session?.user) {
+      router.push("/auth/signin")
+    }
+  }, [session, router])
+
   if (!session?.user) {
-    router.push("/auth/signin")
     return null
   }
 
