@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import MainLayout from "@/components/MainLayout"
 import PostCard from "@/components/PostCard"
 import CommentList from "@/components/CommentList"
-import PostComposer from "@/components/PostComposer"
+import CommentComposer from "@/components/CommentComposer"
 
 interface Post {
   id: string

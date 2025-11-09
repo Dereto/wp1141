@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import MainLayout from "@/components/MainLayout"
 import PostFeed from "@/components/PostFeed"
 import ProfileHeader from "@/components/ProfileHeader"
+import UserLikesFeed from "@/components/UserLikesFeed"
 
 interface User {
   id: string
