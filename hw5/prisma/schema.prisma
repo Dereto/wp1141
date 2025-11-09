@@ -41,7 +41,7 @@ model User {
   id            String    @id @default(cuid())
   userID        String?   @unique // Custom userID for login (nullable until registration)
   name          String?
-  email         String?
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   description   String?   @db.Text
