@@ -44,6 +44,15 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id
+        
+        // Extract original email from modified email (remove +provider part)
+        // Format: user+provider@domain.com -> user@domain.com
+        if (user.email && user.email.includes('+')) {
+          const [localPart, rest] = user.email.split('+')
+          const domain = rest.includes('@') ? rest.split('@')[1] : user.email.split('@')[1]
+          session.user.email = `${localPart}@${domain}`
+        }
+        
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
@@ -71,63 +80,19 @@ export const authOptions: NextAuthOptions = {
         return false
       }
       
-      try {
-        // Check if user already exists with this email
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
-          include: { accounts: true },
-        })
-
-        if (existingUser) {
-          // Check if this account is already linked
-          const existingAccount = existingUser.accounts.find(
-            (acc) => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
-          )
-
-          if (!existingAccount) {
-            // User exists but account is not linked - manually link it
-            console.log("SignIn: User exists, manually linking account for", user.email, "provider:", account.provider)
-            
-            try {
-              // Manually create the account record linking to existing user
-              await prisma.account.create({
-                data: {
-                  userId: existingUser.id,
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  refresh_token: account.refresh_token,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                  session_state: account.session_state,
-                },
-              })
-              console.log("SignIn: Successfully linked account for", user.email)
-            } catch (linkError: any) {
-              // If account already exists (race condition), that's okay
-              if (linkError.code === 'P2002') {
-                console.log("SignIn: Account already exists (race condition), continuing")
-              } else {
-                console.error("SignIn: Error linking account:", linkError)
-                // Still allow sign-in - PrismaAdapter might handle it
-              }
-            }
-          } else {
-            console.log("SignIn: Account already linked for", user.email, "provider:", account.provider)
-          }
-        } else {
-          console.log("SignIn: New user signing in with", user.email, "provider:", account.provider)
-        }
-      } catch (error) {
-        console.error("SignIn: Error checking/linking user:", error)
-        // Continue anyway - PrismaAdapter will handle it
-      }
+      // Modify email to be unique per provider to prevent account linking
+      // This ensures each provider creates a separate user
+      // We'll store the original email in a separate field or extract it later if needed
+      // For now, we'll append the provider to make it unique
+      const originalEmail = user.email
+      user.email = `${originalEmail.split('@')[0]}+${account.provider}@${originalEmail.split('@')[1]}`
       
-      // Always return true - we've handled account linking manually if needed
-      console.log("SignIn: Allowing sign-in for", user.email)
+      console.log("SignIn: Modified email for separate user per provider", {
+        original: originalEmail,
+        modified: user.email,
+        provider: account.provider,
+      })
+      
       return true
     },
     async redirect({ url, baseUrl }) {
