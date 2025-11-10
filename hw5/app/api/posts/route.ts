@@ -15,12 +15,11 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions)
     const userId = session?.user?.id
 
-    let where: any = {
-      parentPostId: null, // Only original posts, not reposts
-    }
+    let where: any = {}
 
     if (type === "following" && userId) {
       // Get posts from users that the current user follows
+      // This includes both original posts and reposts made by users you follow
       const following = await prisma.follow.findMany({
         where: { followerId: userId },
         select: { followingId: true },

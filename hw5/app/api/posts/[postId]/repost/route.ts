@@ -40,15 +40,44 @@ export async function POST(
     })
 
     // Create a post that references the original post
-    await prisma.post.create({
+    const repostPost = await prisma.post.create({
       data: {
         content: "",
         authorId: session.user.id,
         parentPostId: params.postId,
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            userID: true,
+            name: true,
+            image: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+            reposts: true,
+          },
+        },
+        parentPost: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                userID: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
     })
 
-    const post = await prisma.post.findUnique({
+    const originalPost = await prisma.post.findUnique({
       where: { id: params.postId },
       include: {
         _count: {
@@ -57,13 +86,18 @@ export async function POST(
       },
     })
 
-    // Trigger Pusher event
+    // Trigger Pusher event for repost count update on original post
     await pusherServer.trigger(`post-${params.postId}`, "repost-updated", {
       postId: params.postId,
-      repostsCount: post?._count.reposts || 0,
+      repostsCount: originalPost?._count.reposts || 0,
     })
 
-    return NextResponse.json({ repostsCount: post?._count.reposts || 0 }, { status: 200 })
+    // Trigger Pusher event for new repost post in feed
+    await pusherServer.trigger("posts", "new-post", {
+      post: repostPost,
+    })
+
+    return NextResponse.json({ repostsCount: originalPost?._count.reposts || 0 }, { status: 200 })
   } catch (error) {
     console.error("Repost error:", error)
     return NextResponse.json(
