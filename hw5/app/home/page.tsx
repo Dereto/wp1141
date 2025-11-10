@@ -8,11 +8,16 @@ import PostFeed from "@/components/PostFeed"
 import PostComposer from "@/components/PostComposer"
 
 export default function HomePage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [feedType, setFeedType] = useState<"all" | "following">("all")
 
   useEffect(() => {
+    // Wait for session to finish loading
+    if (status === "loading") {
+      return
+    }
+
     if (!session) {
       router.push("/auth/signin")
       return
@@ -22,7 +27,16 @@ export default function HomePage() {
     if (!user.userID) {
       router.push("/auth/register")
     }
-  }, [session, router])
+  }, [session, status, router])
+
+  // Show loading while session is being fetched
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
 
   if (!session) {
     return null

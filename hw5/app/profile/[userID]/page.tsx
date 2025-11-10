@@ -24,7 +24,7 @@ interface User {
 }
 
 export default function ProfilePage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
   const userID = params.userID as string
@@ -37,6 +37,11 @@ export default function ProfilePage() {
   const isOwnProfile = currentUser?.userID === userID
 
   useEffect(() => {
+    // Wait for session to finish loading
+    if (status === "loading") {
+      return
+    }
+
     if (!session) {
       router.push("/auth/signin")
       return
@@ -46,7 +51,7 @@ export default function ProfilePage() {
     if (!isOwnProfile) {
       checkFollowStatus()
     }
-  }, [userID, session])
+  }, [userID, session, status, router, isOwnProfile])
 
   const fetchUser = async () => {
     try {
@@ -92,7 +97,8 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) {
+  // Show loading while session is being fetched
+  if (status === "loading" || loading) {
     return (
       <MainLayout>
         <div className="max-w-2xl mx-auto border-x border-gray-800 min-h-screen p-8">

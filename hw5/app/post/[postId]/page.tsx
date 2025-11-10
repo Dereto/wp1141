@@ -28,7 +28,7 @@ interface Post {
 }
 
 export default function PostDetailPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
   const postId = params.postId as string
@@ -36,13 +36,18 @@ export default function PostDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Wait for session to finish loading
+    if (status === "loading") {
+      return
+    }
+
     if (!session) {
       router.push("/auth/signin")
       return
     }
 
     fetchPost()
-  }, [postId, session])
+  }, [postId, session, status, router])
 
   const fetchPost = async () => {
     try {
@@ -62,7 +67,8 @@ export default function PostDetailPage() {
     fetchPost()
   }
 
-  if (loading) {
+  // Show loading while session is being fetched
+  if (status === "loading" || loading) {
     return (
       <MainLayout>
         <div className="max-w-2xl mx-auto border-x border-gray-800 min-h-screen p-8">

@@ -27,7 +27,7 @@ interface Comment {
 }
 
 export default function CommentDetailPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
   const commentId = params.commentId as string
@@ -37,13 +37,18 @@ export default function CommentDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Wait for session to finish loading
+    if (status === "loading") {
+      return
+    }
+
     if (!session) {
       router.push("/auth/signin")
       return
     }
 
     fetchComment()
-  }, [commentId, postId, session])
+  }, [commentId, postId, session, status, router])
 
   const fetchComment = async () => {
     try {
@@ -84,7 +89,8 @@ export default function CommentDetailPage() {
     return formatted
   }
 
-  if (loading) {
+  // Show loading while session is being fetched
+  if (status === "loading" || loading) {
     return (
       <MainLayout>
         <div className="max-w-2xl mx-auto border-x border-gray-800 min-h-screen p-8">

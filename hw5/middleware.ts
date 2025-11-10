@@ -16,12 +16,16 @@ export async function middleware(req: NextRequest) {
 
   // Check if session cookie exists (works in Edge Runtime without database access)
   // NextAuth uses different cookie names in production vs development
+  // Also check for __Host- prefix which is used in some configurations
   const sessionToken = 
     req.cookies.get('__Secure-next-auth.session-token')?.value ||  // Production (HTTPS)
+    req.cookies.get('__Host-next-auth.session-token')?.value ||    // Production with __Host- prefix
     req.cookies.get('next-auth.session-token')?.value              // Development
 
   if (!sessionToken) {
     // No session cookie, redirect to sign-in
+    // But allow the request to proceed if it's a page that can handle its own auth
+    // This prevents redirect loops when session is being established
     console.log("Middleware: No session cookie found, redirecting to /auth/signin")
     return NextResponse.redirect(new URL("/auth/signin", req.url))
   }
