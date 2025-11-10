@@ -1,11 +1,11 @@
 import { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
 import { prisma } from "@/lib/prisma"
+import { CustomPrismaAdapter } from "@/lib/custom-adapter"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: CustomPrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -45,8 +45,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = user.id
         
-        // Extract original email from modified email (remove +provider part)
-        // Format: user+provider@domain.com -> user@domain.com
+        // Extract original email from modified email (remove +provider-providerAccountId part)
+        // Format: user+provider-accountId@domain.com -> user@domain.com
         if (user.email && user.email.includes('+')) {
           const [localPart, rest] = user.email.split('+')
           const domain = rest.includes('@') ? rest.split('@')[1] : user.email.split('@')[1]
@@ -80,17 +80,20 @@ export const authOptions: NextAuthOptions = {
         return false
       }
       
-      // Modify email to be unique per provider to prevent account linking
-      // This ensures each provider creates a separate user
-      // We'll store the original email in a separate field or extract it later if needed
-      // For now, we'll append the provider to make it unique
+      // Modify email to include providerAccountId to ensure each account gets a unique user
+      // Format: user+provider-providerAccountId@domain.com
+      // This ensures that even two Google accounts with the same email get separate users
       const originalEmail = user.email
-      user.email = `${originalEmail.split('@')[0]}+${account.provider}@${originalEmail.split('@')[1]}`
+      const [localPart, domain] = originalEmail.split('@')
+      // Use first 8 chars of providerAccountId to keep it reasonable
+      const accountIdShort = account.providerAccountId.substring(0, 8)
+      user.email = `${localPart}+${account.provider}-${accountIdShort}@${domain}`
       
-      console.log("SignIn: Modified email for separate user per provider", {
+      console.log("SignIn: Modified email for separate user per account", {
         original: originalEmail,
         modified: user.email,
         provider: account.provider,
+        providerAccountId: account.providerAccountId,
       })
       
       return true
