@@ -16,6 +16,30 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
+  events: {
+    async signIn({ user, account, isNewUser }) {
+      console.log("Event: signIn", {
+        email: user.email,
+        provider: account?.provider,
+        isNewUser,
+        userId: user.id,
+      })
+    },
+    async createUser({ user }) {
+      console.log("Event: createUser", { email: user.email, id: user.id })
+    },
+    async linkAccount({ user, account }) {
+      console.log("Event: linkAccount", {
+        email: user.email,
+        provider: account.provider,
+        userId: user.id,
+      })
+    },
+    async session({ session, token }) {
+      // This is called on every session check
+      // We don't need to log here as it's too verbose
+    },
+  },
   callbacks: {
     async session({ session, user }) {
       if (session.user) {
@@ -40,6 +64,33 @@ export const authOptions: NextAuthOptions = {
       if (!user.email) {
         console.error("SignIn: No email provided")
         return false
+      }
+      
+      try {
+        // Check if user already exists with this email
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          include: { accounts: true },
+        })
+
+        if (existingUser && account) {
+          // Check if this account is already linked
+          const existingAccount = existingUser.accounts.find(
+            (acc) => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
+          )
+
+          if (!existingAccount) {
+            // User exists but account is not linked - PrismaAdapter should handle this
+            console.log("SignIn: User exists, linking account for", user.email, "provider:", account.provider)
+          } else {
+            console.log("SignIn: Account already linked for", user.email, "provider:", account.provider)
+          }
+        } else if (!existingUser) {
+          console.log("SignIn: New user signing in with", user.email, "provider:", account?.provider)
+        }
+      } catch (error) {
+        console.error("SignIn: Error checking user:", error)
+        // Continue anyway - PrismaAdapter will handle it
       }
       
       // PrismaAdapter will handle creating the user and account
