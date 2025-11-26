@@ -25,8 +25,6 @@ export async function GET() {
 export async function POST(req: Request) {
   console.log("POST /api/webhook hit");
   try {
-    await connectDB();
-    
     const body = await req.json();
     console.log("Webhook body:", JSON.stringify(body, null, 2));
     
@@ -36,6 +34,9 @@ export async function POST(req: Request) {
     if (!events || events.length === 0) {
       return NextResponse.json({ status: "success", message: "Verification event" });
     }
+
+    // Only connect to DB when we actually have events to process
+    await connectDB();
 
     const results = await Promise.all(
       events.map(async (event: WebhookEvent) => {
