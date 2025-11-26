@@ -4,8 +4,9 @@ A Next.js application integrating Line Messaging API and Google Gemini LLM to cr
 
 ## 🚀 Deployment
 
-- **Line Bot ID**: `@your_bot_id` (or QR Code link)
-- **Admin Dashboard**: [https://your-vercel-project.vercel.app](https://your-vercel-project.vercel.app)
+- **Line Bot ID**: `@359fyeik`
+- **Line Bot Qrcode**: ![image](./QRcode.png)
+- **Admin Dashboard**: [https://wp1141-delta-seven.vercel.app](https://wp1141-delta-seven.vercel.app)
 
 > **Note**: The Admin Dashboard allows you to view all user conversations and history in real-time.
 
