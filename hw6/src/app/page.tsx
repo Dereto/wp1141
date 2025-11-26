@@ -25,11 +25,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchUsers();
+    const interval = setInterval(fetchUsers, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     if (selectedUser) {
       fetchMessages(selectedUser.lineUserId);
+      const interval = setInterval(() => fetchMessages(selectedUser.lineUserId), 3000);
+      return () => clearInterval(interval);
     }
   }, [selectedUser]);
 
