@@ -31,8 +31,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (selectedUser) {
-      fetchMessages(selectedUser.lineUserId);
-      const interval = setInterval(() => fetchMessages(selectedUser.lineUserId), 3000);
+      // Initial load with loading indicator
+      fetchMessages(selectedUser.lineUserId, false);
+      
+      // Polling in background (no loading indicator)
+      const interval = setInterval(() => fetchMessages(selectedUser.lineUserId, true), 3000);
       return () => clearInterval(interval);
     }
   }, [selectedUser]);
@@ -41,14 +44,15 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/admin/users");
       const data = await res.json();
+      // Only update if data has changed to avoid unnecessary re-renders if we were using memo (optional optimization)
       setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
-  const fetchMessages = async (userId: string) => {
-    setLoading(true);
+  const fetchMessages = async (userId: string, isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const res = await fetch(`/api/admin/messages?userId=${userId}`);
       const data = await res.json();
@@ -56,7 +60,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 
@@ -91,14 +95,17 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col">
         {selectedUser ? (
           <>
-            <div className="p-4 bg-white border-b shadow-sm">
+            <div className="p-4 bg-white border-b shadow-sm flex justify-between items-center">
               <h2 className="text-lg font-semibold">
                 Chat with {selectedUser.displayName || selectedUser.lineUserId}
               </h2>
+              <span className="text-xs text-gray-400 animate-pulse">Live</span>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {loading ? (
-                <div className="text-center text-gray-500">Loading...</div>
+                <div className="flex h-full items-center justify-center text-gray-500">
+                  Loading history...
+                </div>
               ) : (
                 messages.map((msg) => (
                   <div
