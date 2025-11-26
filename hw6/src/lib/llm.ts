@@ -33,7 +33,6 @@ export async function getLLMResponse(
     });
 
     // Get the last message (the new user input)
-    // In our implementation, the history array passed in ALREADY includes the latest user message at the end.
     const pastHistory = history.slice(0, -1);
     const latestMessage = history[history.length - 1];
 
@@ -41,13 +40,22 @@ export async function getLLMResponse(
        return "You speak in silence? A wasted wish.";
     }
 
+    // Format history for Gemini
+    let formattedHistory = pastHistory
+      .filter(msg => msg.role !== "system")
+      .map(msg => ({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.content }],
+      }));
+
+    // Gemini Restriction: History must start with 'user' role
+    // We remove any leading 'model' messages
+    while (formattedHistory.length > 0 && formattedHistory[0].role !== "user") {
+      formattedHistory.shift();
+    }
+
     const chatSession = model.startChat({
-        history: pastHistory
-          .filter(msg => msg.role !== "system")
-          .map(msg => ({
-            role: msg.role === "user" ? "user" : "model",
-            parts: [{ text: msg.content }],
-          }))
+        history: formattedHistory
     });
 
     const result = await chatSession.sendMessage(latestMessage.content);
