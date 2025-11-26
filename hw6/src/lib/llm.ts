@@ -12,7 +12,7 @@ export async function getLLMResponse(
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Gemini handles history differently. 
     // We need to convert our "system/user/assistant" format to Gemini's "user/model" format.
