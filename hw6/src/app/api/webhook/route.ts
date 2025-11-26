@@ -18,12 +18,24 @@ const clientConfig = {
 
 const client = new Client(clientConfig);
 
+export async function GET() {
+  return NextResponse.json({ status: "Webhook is active" });
+}
+
 export async function POST(req: Request) {
+  console.log("POST /api/webhook hit");
   try {
     await connectDB();
     
     const body = await req.json();
+    console.log("Webhook body:", JSON.stringify(body, null, 2));
+    
     const events: WebhookEvent[] = body.events;
+
+    // Handle verify request (events is empty or undefined)
+    if (!events || events.length === 0) {
+      return NextResponse.json({ status: "success", message: "Verification event" });
+    }
 
     const results = await Promise.all(
       events.map(async (event: WebhookEvent) => {
